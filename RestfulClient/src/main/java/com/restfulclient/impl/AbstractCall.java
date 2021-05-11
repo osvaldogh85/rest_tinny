@@ -61,7 +61,7 @@ public abstract class AbstractCall implements ICall {
   public abstract void prepareCall();
   
   @Override
-   public Map<String, Object> executeCall(){
+   public Map<Object, Object> executeCall(){
     create();
     checkRequest();
     prepareCall();

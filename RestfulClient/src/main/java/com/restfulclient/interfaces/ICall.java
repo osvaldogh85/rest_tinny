@@ -12,5 +12,5 @@ import java.util.Map;
  * @author odge
  */
 public interface ICall {
-     public  Map<String, Object> executeCall();
+     public  Map<Object, Object> executeCall();
 }

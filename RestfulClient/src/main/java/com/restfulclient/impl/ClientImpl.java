@@ -103,7 +103,7 @@ public class ClientImpl implements IClient {
     }
   }
   
-  private static void allowMethods(String... methods) {
+  private void allowMethods(String... methods) {
         try {
             Field methodsField = HttpURLConnection.class.getDeclaredField("methods");
 

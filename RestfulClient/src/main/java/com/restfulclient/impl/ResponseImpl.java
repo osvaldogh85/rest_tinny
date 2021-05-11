@@ -23,9 +23,9 @@ public class ResponseImpl implements IResponse {
     }
 
     @Override
-    public  Map<String, Object> getMap() {
+    public  Map<Object, Object> getMap() {
         try {
-            ObjectMapper objectMapper = new ObjectMapper();
+            ObjectMapper objectMapper = new ObjectMapper();            
             return objectMapper.readValue(content, HashMap.class);
         } catch (JsonProcessingException ex) {
             Logger.getLogger(ResponseImpl.class.getName()).log(Level.SEVERE, null, ex);

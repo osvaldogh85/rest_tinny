@@ -19,21 +19,12 @@ class CallExampleImpl extends AbstractCall {
 
   @Override
   public void prepareCall() {
- 
-    String startDate ="2021-03-04";
-    String endDate ="2021-03-010";
-
-    super.addQueryParameter("StarDate", startDate);
-    super.addQueryParameter("EndDate", endDate);
-    super.addQueryParameter("APIKEY", "1234");
-    super.addURLInfo("", "", Method.GET, AbstractCall.TYPE_HTTP_QUERY);
-    
+    super.addURLInfo("http://localhost:8080/api/test/", "patchPerson", Method.PATCH, AbstractCall.TYPE_JSON_BODY);    
     //if the call is for post or put you should create a class inherits from AbstractMessage 
     super.addRequestBody(MessageBodyExampleImpl.build());
-
-    super.addHeader("Content-Type", "");
-    super.addHeader("Accept", "");
-    super.addHeader("User-Agent", "");
+    super.addHeader("Content-Type", "application/json");
+    super.addHeader("Accept", "*/*");
+    super.addHeader("User-Agent", "TestUser");
   }
 }
 

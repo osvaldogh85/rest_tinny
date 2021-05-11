@@ -21,8 +21,9 @@ public class MessageBodyExampleImpl extends AbstractMessage{
   @Override
   public String buildMessage() {
     String json="{\n" +
-                "  \"UserID\": \"userName\",\n" +
-                "  \"Role\": \"1\" ";
+                "  \"name\": \"Jhon Doiron\",\n" +
+                "  \"location\": \"Canada\",\n"  +
+                "  \"birthDate\": \"1975-02-07T06:00:00.000+00:00\" \n}";
     return json;
  }    
 }
