@@ -9,6 +9,11 @@ import java.net.URL;
 import com.restfulclient.interfaces.IClient;
 import com.restfulclient.interfaces.IRequest;
 import com.restfulclient.interfaces.IResponse;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -16,7 +21,9 @@ public class ClientImpl implements IClient {
 
   private HttpURLConnection connection; 
   private IRequest requestCall;
-
+  
+  
+  
   private ClientImpl(){
   }
 
@@ -74,7 +81,12 @@ public class ClientImpl implements IClient {
     try {
       URL url = new URL(requestCall.getRequestPath().getPath());
       connection = (HttpURLConnection) url.openConnection();
-      connection.setRequestMethod(requestCall.getRequestPath().getMethod().getMethod());
+      
+      if(requestCall.getRequestPath().getMethod() == Method.PATCH){
+          allowMethods(requestCall.getRequestPath().getMethod().getName());
+      }
+      
+      connection.setRequestMethod(requestCall.getRequestPath().getMethod().getName());
       connection.setReadTimeout(requestCall.getTimeOut());
      
       if(requestCall.getHeader()==null)
@@ -90,4 +102,25 @@ public class ClientImpl implements IClient {
       throw new Exception("Error while initializing remote connection " + e.getMessage());
     }
   }
+  
+  private static void allowMethods(String... methods) {
+        try {
+            Field methodsField = HttpURLConnection.class.getDeclaredField("methods");
+
+            Field modifiersField = Field.class.getDeclaredField("modifiers");
+            modifiersField.setAccessible(true);
+            modifiersField.setInt(methodsField, methodsField.getModifiers() & ~Modifier.FINAL);
+
+            methodsField.setAccessible(true);
+
+            String[] oldMethods = (String[]) methodsField.get(null);
+            Set<String> methodsSet = new LinkedHashSet<>(Arrays.asList(oldMethods));
+            methodsSet.addAll(Arrays.asList(methods));
+            String[] newMethods = methodsSet.toArray(new String[0]);
+
+            methodsField.set(null/*static field*/, newMethods);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new IllegalStateException(e);
+        }
+    }
  }
