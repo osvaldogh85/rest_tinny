@@ -10,6 +10,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import com.restfulclient.interfaces.IClient;
 import com.restfulclient.interfaces.IResponse;
+import com.restfulclient.interfaces.IResponseResult;
 
 public class ResponseImpl implements IResponse {
 
@@ -23,42 +24,51 @@ public class ResponseImpl implements IResponse {
     }
 
     @Override
-    public  Map<Object, Object> getMap() {
+    public void process(IClient client) {
+        StringBuilder sb = new StringBuilder();
+        BufferedReader br = null;
         try {
-            ObjectMapper objectMapper = new ObjectMapper();            
-            return objectMapper.readValue(content, HashMap.class);
-        } catch (JsonProcessingException ex) {
+            br = client.getResponseStream();
+            var output = br.readLine();
+            while (output != null) {
+                sb.append(output);
+                output = br.readLine();
+            }
+        } catch (IOException e) {
+            Logger.getLogger(ResponseImpl.class.getName()).log(Level.SEVERE, null, e);
+        } catch (Exception ex) {
             Logger.getLogger(ResponseImpl.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                if (br != null) {
+                    br.close();
+                }
+
+                client.close();
+                content = sb.toString();
+            } catch (IOException ex) {
+                Logger.getLogger(ResponseImpl.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
-        return null;
+    }
+    @Override
+    public IResponseResult getIResponseResult() {
+        return new IResponseResult() {
+            @Override
+            public Map<Object, Object> getMap() {
+                try {
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    return objectMapper.readValue(content, HashMap.class);
+                } catch (JsonProcessingException ex) {
+                    Logger.getLogger(ResponseImpl.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                return null;
+            }
+        };
     }
 
     @Override
-    public void process(IClient client) {     
-     StringBuilder sb = new StringBuilder();
-     BufferedReader br= null;
-     try {
-         br = client.getResponseStream();
-         var output = br.readLine();
-         while (output != null) {
-           sb.append(output);
-           output = br.readLine();
-        }
-     }catch(IOException e){
-         Logger.getLogger(ResponseImpl.class.getName()).log(Level.SEVERE, null, e);
-     }catch (Exception ex) {
-        Logger.getLogger(ResponseImpl.class.getName()).log(Level.SEVERE, null, ex);
-     }
-     finally {
-         try {
-             if(br != null)
-                 br.close();
-             
-             client.close();
-             content = sb.toString();
-         } catch (IOException ex) {
-             Logger.getLogger(ResponseImpl.class.getName()).log(Level.SEVERE, null, ex);
-         }
-     }      
+    public String getContent() {
+       return content;
     }
 }

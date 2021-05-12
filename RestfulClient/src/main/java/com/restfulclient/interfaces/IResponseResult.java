@@ -5,10 +5,12 @@
  */
 package com.restfulclient.interfaces;
 
+import java.util.Map;
+
 /**
  *
  * @author odge
  */
-public interface ICall {
-     public IResponseResult executeCall();
+public interface IResponseResult {
+     public Map<Object, Object> getMap();    
 }

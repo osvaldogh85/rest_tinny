@@ -7,6 +7,7 @@ package com.test.restful.examples;
 
 
 import com.restfulclient.interfaces.ICall;
+import com.restfulclient.interfaces.IResponseResult;
 
 /**
  *
@@ -15,8 +16,9 @@ import com.restfulclient.interfaces.ICall;
 public class Test {
     public static void main(String args[]){
         ICall call = CallExampleImpl.build();
-        var result = call.executeCall();
-        result.entrySet().forEach(param -> System.out.println(param.getValue().toString()));
+        IResponseResult response = (IResponseResult) call.executeCall();
+        var result = response.getMap();
+        result.entrySet().forEach(param -> System.out.println(param.getKey() +" ---> "+param.getValue().toString()));
     }
     
 }

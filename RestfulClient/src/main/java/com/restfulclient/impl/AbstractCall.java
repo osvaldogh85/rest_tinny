@@ -6,6 +6,7 @@ import com.restfulclient.interfaces.IRequest;
 import com.restfulclient.interfaces.IRequestBody;
 import com.restfulclient.interfaces.IRequestPath;
 import com.restfulclient.interfaces.IResponse;
+import com.restfulclient.interfaces.IResponseResult;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -61,13 +62,13 @@ public abstract class AbstractCall implements ICall {
   public abstract void prepareCall();
   
   @Override
-   public Map<Object, Object> executeCall(){
+   public IResponseResult executeCall(){
     create();
     checkRequest();
     prepareCall();
     fillRequest();    
     IResponse response  = ClientImpl.build(request).execute();
-    return response.getMap();
+    return response.getIResponseResult();
   }
   
   protected void addQueryParameter(String parameter  , String value ) {
