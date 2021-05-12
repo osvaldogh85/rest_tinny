@@ -25,6 +25,7 @@ class CallExampleImpl extends AbstractCall {
     super.addHeader("Content-Type", "application/json");
     super.addHeader("Accept", "*/*");
     super.addHeader("User-Agent", "TestUser");
+    super.addHeader("Authorization", "Bearer jfdhh8383jhfjdsaf8y8uy9yasdf9asdf99fd");
   }
 }
 
