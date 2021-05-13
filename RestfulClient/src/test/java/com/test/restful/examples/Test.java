@@ -18,7 +18,11 @@ public class Test {
         ICall call = CallExampleImpl.build();
         IResponseResult response = (IResponseResult) call.executeCall();
         var result = response.getMap();
-        result.entrySet().forEach(param -> System.out.println(param.getKey() +" ---> "+param.getValue().toString()));
+        result.entrySet().forEach(param -> System.out.println(param.getKey() +" ---> "+param.getValue().toString()));    
+        
+        var content = response.getJSON();
+        System.out.println(content);
+       
     }
     
 }

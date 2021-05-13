@@ -55,7 +55,7 @@ public class ResponseImpl implements IResponse {
     public IResponseResult getIResponseResult() {
         return new IResponseResult() {
             @Override
-            public Map<Object, Object> getMap() {
+            public Map<String, Object> getMap() {
                 try {
                     ObjectMapper objectMapper = new ObjectMapper();
                     return objectMapper.readValue(content, HashMap.class);
@@ -64,11 +64,11 @@ public class ResponseImpl implements IResponse {
                 }
                 return null;
             }
-        };
-    }
 
-    @Override
-    public String getContent() {
-       return content;
+            @Override
+            public String getJSON() {
+                return content;
+            }
+        };
     }
 }

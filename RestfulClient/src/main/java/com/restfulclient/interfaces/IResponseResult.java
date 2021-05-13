@@ -12,5 +12,6 @@ import java.util.Map;
  * @author odge
  */
 public interface IResponseResult {
-     public Map<Object, Object> getMap();    
+     public Map<String, Object> getMap(); 
+     public String getJSON(); 
 }
