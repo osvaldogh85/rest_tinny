@@ -1,5 +1,6 @@
 package com.restfulclient.impl;
 
+import com.restfulclient.interfaces.IAuthorization;
 import com.restfulclient.interfaces.ICall;
 import com.restfulclient.interfaces.IMessage;
 import com.restfulclient.interfaces.IRequest;
@@ -7,7 +8,6 @@ import com.restfulclient.interfaces.IRequestBody;
 import com.restfulclient.interfaces.IRequestPath;
 import com.restfulclient.interfaces.IResponse;
 import com.restfulclient.interfaces.IResponseResult;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -37,7 +37,7 @@ public abstract class AbstractCall implements ICall {
     request.addRequestPath(path);
     request.addRequestBody(body);
   }
-  
+    
   private void checkRequest(){
        if(IS_FOR_POST && this.body.getRequestBody()==null){       
         try {       
@@ -60,11 +60,18 @@ public abstract class AbstractCall implements ICall {
    * Method to implement the restful API call
    */
   public abstract void prepareCall();
+  public abstract IAuthorization addAutentication();
+  
+  private void setAutentication(){
+    IAuthorization ia = this.addAutentication();
+    this.addHeader(ia.getAuthorization(), ia.getAuthorizationToken());
+  }
   
   @Override
    public IResponseResult executeCall(){
     create();
     checkRequest();
+    setAutentication();
     prepareCall();
     fillRequest();    
     IResponse response  = ClientImpl.build(request).execute();

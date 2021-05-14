@@ -1,7 +1,9 @@
 package com.test.restful.examples;
 
 import com.restfulclient.impl.AbstractCall;
+import com.restfulclient.impl.HttpAuthorizationImpl;
 import com.restfulclient.impl.Method;
+import com.restfulclient.interfaces.IAuthorization;
 import com.restfulclient.interfaces.ICall;
 import java.util.Date;
 
@@ -35,5 +37,9 @@ class TransactionRangeDateCall extends AbstractCall {
     super.addHeader("Content-Type", "");
     super.addHeader("Accept", "");
     super.addHeader("User-Agent", "");
+  }
+  
+  public IAuthorization addAutentication(){
+      return HttpAuthorizationImpl.build("jfdhh8383jhfjdsaf8y8uy9yasdf9asdf99fd");
   }
 }

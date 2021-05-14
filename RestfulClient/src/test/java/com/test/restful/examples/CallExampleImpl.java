@@ -1,7 +1,9 @@
 package com.test.restful.examples;
 
 import com.restfulclient.impl.AbstractCall;
+import com.restfulclient.impl.HttpAuthorizationImpl;
 import com.restfulclient.impl.Method;
+import com.restfulclient.interfaces.IAuthorization;
 import com.restfulclient.interfaces.ICall;
 
 /**
@@ -26,6 +28,10 @@ class CallExampleImpl extends AbstractCall {
     super.addHeader("Accept", "*/*");
     super.addHeader("User-Agent", "TestUser");
    // super.addHeader("Authorization", "Bearer jfdhh8383jhfjdsaf8y8uy9yasdf9asdf99fd");
+  }
+  
+  public IAuthorization addAutentication(){
+      return HttpAuthorizationImpl.build("jfdhh8383jhfjdsaf8y8uy9yasdf9asdf99fd");
   }
 }
 
