@@ -34,7 +34,6 @@ public class Call extends AbstractCall{
         if (apiToken != null && !apiToken.equals("")) {
             return HttpAuthorizationImpl.build(apiToken);
         }
-
         return null;
     }
 
@@ -43,7 +42,6 @@ public class Call extends AbstractCall{
         if (user != null && !user.equals("") && pass != null && !pass.equals("")) {
             return HttpAuthorizationImpl.build(user, pass);
         }
-
         return null;
     }
     

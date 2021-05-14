@@ -8,5 +8,5 @@ public interface IRequestPath {
   public void addPathForJSONQuery(String url , String webServiceMethod,Method httpMethod );
   public void addPathForHTTPQuery(String url , String webServiceMethod ,Method httpMethod);
   public void addPathForRequestForJSONBody(String url , String webServiceMethod, Method httpMethod);
-  public void addQueryParameter(String parameter , String value);
+  public void addQueryParameter(String parameter , Object value);
   }

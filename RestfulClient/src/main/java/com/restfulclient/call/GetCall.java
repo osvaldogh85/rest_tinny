@@ -13,40 +13,44 @@ import java.util.Map;
 
 public class GetCall extends Call {
 
+    private final RequestType TYPE_SELECTED;
     private final String serverURL;
     private final String requestMethodURL; 
-    private final Map<String,String> queryParameters;
+    private final Map<String,Object> queryParameters;
    
-   private GetCall(String serverURL,String requestMethodPath,String apiToken,Map<String,String> queryParameters) {
+   private GetCall(String serverURL,String requestMethodPath,RequestType type,String apiToken,Map<String,Object> queryParameters) {
     super(apiToken,null,null);
     this.serverURL=serverURL;
     this.requestMethodURL=requestMethodPath;  
     this.queryParameters=queryParameters;
+    this.TYPE_SELECTED=type;
   
    }
 
-  public static ICall build(String serverURL,String requestMethodURL,String apiToken,Map<String,String> queryParameters)   {
-    return new GetCall(serverURL,requestMethodURL,apiToken,queryParameters);
+  public static ICall build(String serverURL,String requestMethodURL,RequestType type,String apiToken,Map<String,Object> queryParameters)   {
+    return new GetCall(serverURL,requestMethodURL,type,apiToken,queryParameters);
   }
   
-   private GetCall(String serverURL,String requestMethodPath,Map<String,String> queryParameters,String user, String password) {
+   private GetCall(String serverURL,String requestMethodPath,RequestType type,Map<String,Object> queryParameters,String user, String password) {
     super(null,user,password);
     this.serverURL=serverURL;
     this.requestMethodURL=requestMethodPath;  
     this.queryParameters=queryParameters;   
+    this.TYPE_SELECTED=type;
    }
 
-  public static ICall build(String serverURL,String requestMethodURL,String apiToken,Map<String,String> queryParameters,String user, String password)   {
-    return new GetCall(serverURL,requestMethodURL,queryParameters,user,password);
+  public static ICall build(String serverURL,String requestMethodURL,RequestType type,String apiToken,Map<String,Object> queryParameters,String user, String password)   {
+    return new GetCall(serverURL,requestMethodURL,type,queryParameters,user,password);
   }
 
   @Override
   public void prepareCall() {
-     super.prepareCall();
-
-    super.addURLInfo(serverURL, requestMethodURL, Method.POST, AbstractCall.TYPE_JSON_QUERY);
-    for(String key : queryParameters.keySet())
-      super.addQueryParameter(key, queryParameters.get(key));
+    super.prepareCall();
+     queryParameters.keySet().forEach(key -> {
+        super.addQueryParameter(key, queryParameters.get(key));
+        });
+    super.addURLInfo(serverURL, requestMethodURL, Method.GET,TYPE_SELECTED);
+   
   }
 
 }

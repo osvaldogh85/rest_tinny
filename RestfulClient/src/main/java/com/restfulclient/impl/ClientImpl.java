@@ -92,9 +92,9 @@ public class ClientImpl implements IClient {
       if(requestCall.getHeader()==null)
         throw new Exception("Error while initializing remote connection ");
 
-      for(String param : requestCall.getHeader().keySet()){
-        connection.setRequestProperty(param, requestCall.getHeader().get(param).toString());
-      }
+      requestCall.getHeader().keySet().forEach(param -> {
+          connection.setRequestProperty(param, requestCall.getHeader().get(param).toString());
+        });
 
       connection.setDoOutput(true);
       connection.setDoInput(true);

@@ -59,7 +59,7 @@ public class RequestPathImpl implements IRequestPath {
     }
 
     @Override
-    public void addQueryParameter(String parameter, String value) {
+    public void addQueryParameter(String parameter, Object value) {
         this.parameters.put(parameter, value);
     }
 
@@ -101,11 +101,11 @@ public class RequestPathImpl implements IRequestPath {
             //key                 value
             //workItem          workItem
             //workItem_value    00-00-000003-1
-            for (String key : parameters.keySet()) {
+            parameters.keySet().forEach(key -> {
                 path = path + "/" + parameters.get(key).toString();
                 //1 loop https://server_url/methodName
                 //2 loop https://server_url/methodName/000-00-000003-1
-            }
+            });
         } else {
             if (parameters == null) {
                 return;
