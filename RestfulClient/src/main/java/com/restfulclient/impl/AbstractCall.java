@@ -61,9 +61,21 @@ public abstract class AbstractCall implements ICall {
    */
   public abstract void prepareCall();
   public abstract IAuthorization addAutentication();
+  public abstract IAuthorization addUserAndPassAutentication();
   
   private void setAutentication(){
-    IAuthorization ia = this.addAutentication();
+    IAuthorization ia = this.addAutentication();  
+   
+    if(ia==null){
+        ia = this.addUserAndPassAutentication();  
+         if(ia==null){
+            try {
+                throw new Exception("No authentication information found");
+            } catch (Exception ex) {
+               Logger.getLogger(AbstractCall.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            }
+    }
     this.addHeader(ia.getAuthorization(), ia.getAuthorizationToken());
   }
   
@@ -113,7 +125,7 @@ public abstract class AbstractCall implements ICall {
     }
   }
    
-  private  enum RequestType{
+  public enum RequestType{
     TYPE_JSON_QUERY, TYPE_HTTP_QUERY, TYPE_JSON_BODY;   
   }
 }
