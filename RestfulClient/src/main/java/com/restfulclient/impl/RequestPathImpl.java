@@ -68,12 +68,18 @@ public class RequestPathImpl implements IRequestPath {
         if (url == null) {
             throw new Exception("Error while creating path there is no url to request");
         }
-
-        if (service != null) {
+       String serviceCall;
+       
+        if(service.charAt(0) == '/')
+          serviceCall = service.substring(1,service.length());
+        else
+          serviceCall = service;
+              
+        if (serviceCall != null) {
             if (!url.substring(url.length() - 1).equals("/")) {
-                path = url + "/" + service;
+                path = url + "/" + serviceCall;
             } else {
-                path = url + service;
+                path = url + serviceCall;
             }
         } else {
             if (!url.substring(url.length() - 1).equals("/")) {
@@ -133,11 +139,18 @@ public class RequestPathImpl implements IRequestPath {
             throw new Exception("Error while creating path there is no url to request ");
         }
 
-        if (service != null) {
+        String serviceCall;
+       
+        if(service.charAt(0) == '/')
+          serviceCall = service.substring(1,service.length());
+        else
+          serviceCall = service;
+        
+        if (serviceCall != null) {
             if (!url.substring(url.length() - 1).equals("/")) {
-                path = url + "/" + service;
+                path = url + "/" + serviceCall;
             } else {
-                path = url + service;
+                path = url + serviceCall;
             }
         } else {
             if (!url.substring(url.length() - 1).equals("/")) {

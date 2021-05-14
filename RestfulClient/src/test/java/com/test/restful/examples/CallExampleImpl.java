@@ -21,7 +21,7 @@ class CallExampleImpl extends AbstractCall {
 
   @Override
   public void prepareCall() {
-    super.addURLInfo("http://localhost:8080/api/test/", "patchPerson", Method.PATCH, AbstractCall.TYPE_JSON_BODY);    
+    super.addURLInfo("http://localhost:8080/api/test", "patchPerson", Method.PATCH, AbstractCall.TYPE_JSON_BODY);    
     //if the call is for post or put you should create a class inherits from AbstractMessage 
     super.addRequestBody(MessageBodyExampleImpl.build());
     super.addHeader("Content-Type", "application/json");
