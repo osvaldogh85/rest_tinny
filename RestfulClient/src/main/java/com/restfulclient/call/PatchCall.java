@@ -42,7 +42,7 @@ public class PatchCall extends Call {
   @Override
   public void prepareCall() {
     super.prepareCall();
-    super.addURLInfo(serverURL, requestMethodURL, Method.PATCH, AbstractCall.TYPE_JSON_QUERY);
+    super.addURLInfo(serverURL, requestMethodURL, Method.PATCH, AbstractCall.TYPE_JSON_BODY);
     super.addRequestBody(BodyContent.build(JSONBodyContent));
   }  
 }
