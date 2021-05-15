@@ -5,6 +5,7 @@
  */
 package com.restfulclient.interfaces;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -13,5 +14,6 @@ import java.util.Map;
  */
 public interface IResponseResult {
      public Map<String, Object> getMap(); 
+     public List<Map<String, Object>> getList();
      public String getJSON(); 
 }

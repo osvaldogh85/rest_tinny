@@ -18,17 +18,17 @@ import java.util.Map;
  */
 public class Test {
     public static void main(String args[]){
-        /* String json="{\n" +
+       String json="{\n" +
                 "  \"name\": \"Jhon Doiron\",\n" +
                 "  \"location\": \"Canada\",\n"  +
-                "  \"birthDate\": \"1975-02-07T06:00:00.000+00:00\" \n}";*/
+                "  \"birthDate\": \"1975-02-07T06:00:00.000+00:00\" \n}";
         
     /*     String json="{   \n" +
 "      \"id\":\"5\"\n" +
 "}";*/
       Map<String,Object> e =  new HashMap<String,Object>();
-      e.put("id", 10001);
-    String json ="{\n" +
+      e.put("id",10001);
+  /*  String json ="{\n" +
 "  \"interviewee\": {\n" +
 "    \"firstName\": \"Osvaldo\",\n" +
 "    \"lastName\": \"Gonzalez\",\n" +
@@ -44,21 +44,22 @@ public class Test {
 "    },\n" +
 "    \"lossOccurredAt\": \"2021-05-14T12:00:00.000Z\"\n" +
 "  }\n" +
-"}";
-         //.build("http://localhost:8080/api/test", , DeleteCall.TYPE_JSON_BODY , json);
-        var call = ExecutorCall.build("https://api.xyz.n2uitive.com/",
-                                      "v1/interviews",
-                                      Method.POST, 
-                                      ExecutorCall.TYPE_JSON_BODY , 
-                                      json, 
-                                      "0030bfa1a2d50cd36f4daafa99521eefc124bf109bc85c2c90da7ff172747cff63");
-        //DeleteCall.build("http://localhost:8080/api/test/", "deletePerson", null, DeleteCall.TYPE_JSON_BODY, json);
-        IResponseResult response = (IResponseResult) call.executeCall();
-        var result = response.getMap();
-        result.entrySet().forEach(param -> System.out.println(param.getKey() +" ---> "+param.getValue().toString()));    
+"}";*/
+      
+       
+     
+        IResponseResult response = (IResponseResult) ExecutorCall.build("http://localhost:8080/api/test", "getPersonQuery", Method.GET,ExecutorCall.TYPE_JSON_QUERY,e, null).executeCall();
+               
+        
+     //  var ls = response.getList();
+     //    System.out.println(ls.toString());
         
         var content = response.getJSON();
         System.out.println(content);
+        
+        
+         var mp = response.getMap();
+         System.out.println(mp.toString());
        
     }
     

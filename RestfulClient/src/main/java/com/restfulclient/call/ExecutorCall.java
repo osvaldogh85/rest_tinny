@@ -30,6 +30,26 @@ public class ExecutorCall extends Call {
         this.TYPE_SELECTED=requestType;
        
     }
+    
+    private ExecutorCall(String serverURL, String requestMethodPath,Method method, String apiToken) {
+        super(apiToken,null,null);
+        this.serverURL = serverURL;
+        this.requestMethodURL = requestMethodPath;
+        this.JSONBodyContent = null;
+        this.method=method;
+        this.TYPE_SELECTED=Call.TYPE_JSON_QUERY;
+       
+    }
+    
+     private ExecutorCall(String serverURL, String requestMethodPath,Method method,String user, String password) {
+        super(null,user,password);
+        this.serverURL = serverURL;
+        this.requestMethodURL = requestMethodPath;
+        this.JSONBodyContent = null;
+        this.method=method;
+        this.TYPE_SELECTED=Call.TYPE_JSON_QUERY;;
+       
+    }
       
     private ExecutorCall(String serverURL, String requestMethodPath, Method method,RequestType requestType,String JSONBodyContent, String user, String password) {
         super(null,user,password);
@@ -61,6 +81,14 @@ public class ExecutorCall extends Call {
         this.queryParameters=queryParameters;
     }
     
+    public static ICall build(String serverURL, String requestMethodPath,Method method, String apiToken) {
+        return new ExecutorCall(serverURL, requestMethodPath, method, apiToken);
+    }
+    
+    public static ICall build(String serverURL, String requestMethodPath,Method method, String user, String password) {
+        return new ExecutorCall(serverURL, requestMethodPath, method,  user, password);
+    }
+     
     public static ICall build(String serverURL, String requestMethodPath,Method method,RequestType requestType, Map<String,Object> queryParameters, String apiToken) {
         return new ExecutorCall(serverURL, requestMethodPath, method,requestType, queryParameters, apiToken);
     }
@@ -82,10 +110,12 @@ public class ExecutorCall extends Call {
     public void prepareCall() {
         super.prepareCall();
         
-        if (TYPE_SELECTED == Call.TYPE_JSON_QUERY || TYPE_SELECTED == Call.TYPE_HTTP_QUERY) {           
-            queryParameters.keySet().forEach(key -> {
-                super.addQueryParameter(key, queryParameters.get(key));
-            });
+        if (TYPE_SELECTED == Call.TYPE_JSON_QUERY || TYPE_SELECTED == Call.TYPE_HTTP_QUERY) {   
+            if(queryParameters !=null){
+               queryParameters.keySet().forEach(key -> {
+                  super.addQueryParameter(key, queryParameters.get(key));           
+               });
+             }
         } else {
             if (TYPE_SELECTED == Call.TYPE_JSON_BODY) {
                 super.addRequestBody(BodyContent.build(JSONBodyContent));

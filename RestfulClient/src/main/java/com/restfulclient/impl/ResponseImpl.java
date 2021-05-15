@@ -1,6 +1,7 @@
 package com.restfulclient.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,6 +12,7 @@ import java.util.logging.Logger;
 import com.restfulclient.interfaces.IClient;
 import com.restfulclient.interfaces.IResponse;
 import com.restfulclient.interfaces.IResponseResult;
+import java.util.List;
 
 public class ResponseImpl implements IResponse {
 
@@ -64,11 +66,23 @@ public class ResponseImpl implements IResponse {
                 }
                 return null;
             }
+            
+           @Override 
+           public List<Map<String, Object>> getList() {
+                try {
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    return objectMapper.readValue(content, new TypeReference<List<Map<String, Object>>>(){});
+                } catch (JsonProcessingException ex) {
+                    Logger.getLogger(ResponseImpl.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                return null;
+            }
 
             @Override
             public String getJSON() {
                 return content;
             }
+           
         };
     }
 }
