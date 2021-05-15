@@ -6,11 +6,8 @@
 package com.test.restful.examples;
 
 
-import com.restfulclient.call.DeleteCall;
-import com.restfulclient.call.GetCall;
-import com.restfulclient.call.PatchCall;
-import com.restfulclient.call.PostCall;
-import com.restfulclient.interfaces.ICall;
+import com.restfulclient.call.ExecutorCall;
+import com.restfulclient.impl.Method;
 import com.restfulclient.interfaces.IResponseResult;
 import java.util.HashMap;
 import java.util.Map;
@@ -49,7 +46,12 @@ public class Test {
 "  }\n" +
 "}";
          //.build("http://localhost:8080/api/test", , DeleteCall.TYPE_JSON_BODY , json);
-        var call = PostCall.build("https://api.xyz.n2uitive.com/","v1/interviews", json, "0030bfa1a2d50cd36f4daafa99521eefc124bf109bc85c2c90da7ff172747cff63");
+        var call = ExecutorCall.build("https://api.xyz.n2uitive.com/",
+                                      "v1/interviews",
+                                      Method.POST, 
+                                      ExecutorCall.TYPE_JSON_BODY , 
+                                      json, 
+                                      "0030bfa1a2d50cd36f4daafa99521eefc124bf109bc85c2c90da7ff172747cff63");
         //DeleteCall.build("http://localhost:8080/api/test/", "deletePerson", null, DeleteCall.TYPE_JSON_BODY, json);
         IResponseResult response = (IResponseResult) call.executeCall();
         var result = response.getMap();
