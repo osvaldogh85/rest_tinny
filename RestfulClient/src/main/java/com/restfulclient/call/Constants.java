@@ -12,7 +12,7 @@ package com.restfulclient.call;
 public class Constants {
    public static final String API_CONTENT="Content-Type";
    public static final String API_ACCEPT  ="Accept";
-   public static final String API_CONTENT_TYPE="application/json";
+   public static final String JSON_CONTENT_TYPE="application/json";
    public static final String API_USER_AGENT="APIClientV1";
    public static final String API_USER_AGENT_TITLE="User-Agent";
    public static final String API_ACCEPT_CONTENT="*/*";

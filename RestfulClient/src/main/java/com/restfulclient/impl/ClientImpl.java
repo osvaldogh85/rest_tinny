@@ -49,7 +49,7 @@ public class ClientImpl implements IClient {
   }
 
   private boolean isOKHTTP() throws IOException{
-     return (connection.getResponseCode() >= HttpURLConnection.HTTP_OK) && (connection.getResponseCode() <= HttpURLConnection.HTTP_ACCEPTED);
+     return (connection.getResponseCode() >= HttpURLConnection.HTTP_OK) && (connection.getResponseCode() <= HttpURLConnection.HTTP_PARTIAL);
   }
 
   @Override

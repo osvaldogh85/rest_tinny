@@ -23,8 +23,7 @@ public class Call extends AbstractCall{
     }
         
     @Override
-    public void prepareCall() {
-        super.addHeader(Constants.API_CONTENT, Constants.API_CONTENT_TYPE);
+    public void prepareCall() {       
         super.addHeader(Constants.API_ACCEPT, Constants.API_ACCEPT_CONTENT);
         super.addHeader(Constants.API_USER_AGENT_TITLE, Constants.API_USER_AGENT);
     }

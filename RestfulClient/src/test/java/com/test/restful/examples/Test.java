@@ -4,9 +4,9 @@
  * and open the template in the editor.
  */
 package com.test.restful.examples;
+import com.restfulclient.call.Constants;
 
-
-import com.restfulclient.call.ExecutorCall;
+import com.restfulclient.call.RestClient;
 import com.restfulclient.impl.Method;
 import com.restfulclient.interfaces.IResponseResult;
 import java.util.HashMap;
@@ -48,7 +48,7 @@ public class Test {
       
        
      
-        IResponseResult response = (IResponseResult) ExecutorCall.build("http://localhost:8080/api/test", "getPersonQuery", Method.GET,ExecutorCall.TYPE_JSON_QUERY,e, null).executeCall();
+        IResponseResult response = (IResponseResult) RestClient.build("http://localhost:8080/api/test", "getPersonQuery", Method.GET,RestClient.TYPE_JSON_QUERY,Constants.JSON_CONTENT_TYPE,e, null).executeCall();
                
         
      //  var ls = response.getList();
