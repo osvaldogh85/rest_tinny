@@ -7,6 +7,7 @@ package com.test.restful.examples;
 import com.restfulclient.call.Constants;
 
 import com.restfulclient.call.RestClient;
+import com.restfulclient.impl.AbstractCall.RequestType;
 import com.restfulclient.impl.Method;
 import com.restfulclient.interfaces.IResponseResult;
 import java.util.HashMap;
@@ -48,8 +49,8 @@ public class Test {
       
        
      
-        IResponseResult response = (IResponseResult) RestClient.build("http://localhost:8080/api/test", "getPersonQuery", Method.GET,RestClient.TYPE_JSON_QUERY,Constants.JSON_CONTENT_TYPE,e, null).executeCall();
-               
+        IResponseResult response = (IResponseResult) RestClient.build("http://localhost:8080/api/test", "getPersonQuery", Method.GET,RequestType.TYPE_JSON_QUERY,Constants.JSON_CONTENT_TYPE,e, null).executeCall();
+        
         
      //  var ls = response.getList();
      //    System.out.println(ls.toString());

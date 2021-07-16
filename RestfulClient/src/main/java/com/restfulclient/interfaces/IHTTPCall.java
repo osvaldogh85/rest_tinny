@@ -9,6 +9,6 @@ package com.restfulclient.interfaces;
  *
  * @author odge
  */
-public interface ICall {
+public interface IHTTPCall {
      public IResponseResult executeCall();
 }

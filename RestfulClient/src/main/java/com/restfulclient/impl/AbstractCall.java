@@ -1,7 +1,7 @@
 package com.restfulclient.impl;
 
 import com.restfulclient.interfaces.IAuthorization;
-import com.restfulclient.interfaces.ICall;
+import com.restfulclient.interfaces.IHTTPCall;
 import com.restfulclient.interfaces.IMessage;
 import com.restfulclient.interfaces.IRequest;
 import com.restfulclient.interfaces.IRequestBody;
@@ -14,14 +14,11 @@ import java.util.logging.Logger;
 /**
  * Abstract representation of any restful call
  */
-public abstract class AbstractCall implements ICall {
+public abstract class AbstractCall implements IHTTPCall {
 
     private IRequestPath path = null;
     private IRequest request = null;
     private IRequestBody body = null;
-    public static final RequestType TYPE_JSON_QUERY = RequestType.TYPE_JSON_QUERY;
-    public static final RequestType TYPE_HTTP_QUERY = RequestType.TYPE_HTTP_QUERY;
-    public static final RequestType TYPE_JSON_BODY = RequestType.TYPE_JSON_BODY;
     private boolean IS_FOR_POST = false;
 
     public AbstractCall() {
@@ -41,14 +38,14 @@ public abstract class AbstractCall implements ICall {
     private void checkRequest() {
         if (IS_FOR_POST && this.body.getRequestBody() == null) {
             try {
-                throw new Exception("Request is for POST or PUT  but did not found a TYPE_JSON_BODY selected");
+                throw new Exception("Request is for POST or PUT or PATCH or DELETE but not anybut TYPE_JSON_BODY not found");
             } catch (Exception ex) {
                 Logger.getLogger(AbstractCall.class.getName()).log(Level.SEVERE, null, ex);
             }
         } else {
             if (!IS_FOR_POST && this.body.getRequestBody() != null) {
                 try {
-                    throw new Exception("Request is NOT POST or PUT but we not found a TYPE_JSON_BODY selected");
+                    throw new Exception("Request is NOT POST or PUT but TYPE_JSON_BODY not found");
                 } catch (Exception ex) {
                     Logger.getLogger(AbstractCall.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -65,7 +62,7 @@ public abstract class AbstractCall implements ICall {
 
     public abstract IAuthorization addUserAndPassAutentication();
 
-    private void setAutentication() {
+    private void configurAuthorization() {
         IAuthorization bearer = this.addAutentication();
         if (bearer != null) {
              this.addHeader(bearer.getAuthorization(), bearer.getAuthorizationToken());
@@ -82,7 +79,7 @@ public abstract class AbstractCall implements ICall {
     public IResponseResult executeCall() {
         create();
         checkRequest();
-        setAutentication();
+        configurAuthorization();
         prepareCall();
         fillRequest();
         IResponse response = ClientImpl.build(request).execute();
@@ -109,8 +106,9 @@ public abstract class AbstractCall implements ICall {
 
     protected void addURLInfo(String url, String webServiceMethod, Method httpMethod, RequestType requestType) {
         if (path != null) {
+            
             switch (requestType) {
-                case TYPE_JSON_QUERY:
+                case TYPE_JSON_QUERY :
                     path.addPathForJSONQuery(url, webServiceMethod, httpMethod);
                     break;
                 case TYPE_HTTP_QUERY:
@@ -120,11 +118,19 @@ public abstract class AbstractCall implements ICall {
                     IS_FOR_POST = true;
                     path.addPathForRequestForJSONBody(url, webServiceMethod, httpMethod);
                     break;
+                case TYPE_JSON_QUERY_AND_BODY:
+                    IS_FOR_POST = true;
+                    path.addPathForJSONQuery(url, webServiceMethod, httpMethod);
+                    break;
+                case TYPE_HTTP_QUERY_AND_BODY:
+                    IS_FOR_POST = true;
+                    path.addPathForHTTPQuery(url, webServiceMethod, httpMethod);
+                    break;
             }
         }
     }
-
-    public enum RequestType {
-        TYPE_JSON_QUERY, TYPE_HTTP_QUERY, TYPE_JSON_BODY;
-    }
+    
+     public enum RequestType {
+        TYPE_JSON_QUERY, TYPE_HTTP_QUERY, TYPE_JSON_BODY,TYPE_JSON_QUERY_AND_BODY,TYPE_HTTP_QUERY_AND_BODY;
+    } 
 }

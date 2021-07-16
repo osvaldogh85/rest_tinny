@@ -12,11 +12,11 @@ import com.restfulclient.interfaces.IAuthorization;
  *
  * @author odge
  */
-public class Call extends AbstractCall{
+public class HTTPBase extends AbstractCall{
   
     private final String apiToken, user, pass;
 
-    public Call(String apiToken, String user, String pass) {
+    public HTTPBase(String apiToken, String user, String pass) {
         this.apiToken = apiToken;
         this.user = user;
         this.pass = pass;
