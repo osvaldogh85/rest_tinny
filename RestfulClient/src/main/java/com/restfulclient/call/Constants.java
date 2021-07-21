@@ -16,4 +16,9 @@ public class Constants {
    public static final String API_USER_AGENT="APIClientV1";
    public static final String API_USER_AGENT_TITLE="User-Agent";
    public static final String API_ACCEPT_CONTENT="*/*";
+   public static final String API_ACCEPT_ENCODING="Accept-Encoding";
+   public static final String GZIP_ENCODING="gzip";
+   public static final String DEFLATE_ENCODING="deflate";
+   public static final String AUTHORIZATION_HEADER="Authorization";
+   
 }

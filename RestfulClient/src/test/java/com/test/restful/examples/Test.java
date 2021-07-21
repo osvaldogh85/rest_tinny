@@ -49,7 +49,7 @@ public class Test {
       
        
      
-        IResponseResult response = (IResponseResult) RestClient.build("http://localhost:8080/api/test", "getPersonQuery", Method.GET,RequestType.TYPE_JSON_QUERY,Constants.JSON_CONTENT_TYPE,e, null).executeCall();
+        IResponseResult response = (IResponseResult) RestClient.build("http://localhost:8080/api/test", "getPersonQuery", Method.GET,RequestType.TYPE_JSON_QUERY,e,e, null).executeCall();
         
         
      //  var ls = response.getList();

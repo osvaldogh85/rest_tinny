@@ -1,5 +1,6 @@
 package com.restfulclient.impl;
 
+import com.restfulclient.call.Constants;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -16,94 +17,102 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.Inflater;
+import java.util.zip.InflaterInputStream;
 
 public class ClientImpl implements IClient {
 
-  private HttpURLConnection connection; 
-  private IRequest requestCall;
-  
-  
-  
-  private ClientImpl(){
-  }
+    private HttpURLConnection connection;
+    private IRequest requestCall;
 
-  public static IClient build(IRequest request ) {
-    var client = new ClientImpl();
-    client.addRequest(request);
-    return client;
-  }
-
-  private void addRequest(IRequest request){
-    this.requestCall = request;
-  }
-
-  @Override
-  public IResponse execute() {
-      try {
-          openConnection();
-          return requestCall.call(this);
-      } catch (Exception ex) {
-          Logger.getLogger(ClientImpl.class.getName()).log(Level.SEVERE, null, ex);
-      }
-      return null;
-  }
-
-  private boolean isOKHTTP() throws IOException{
-     return (connection.getResponseCode() >= HttpURLConnection.HTTP_OK) && (connection.getResponseCode() <= HttpURLConnection.HTTP_PARTIAL);
-  }
-
-  @Override
-  public OutputStream getRequestStream()throws Exception {
-    return connection.getOutputStream();
-  }
-
-  @Override
-  public BufferedReader getResponseStream()throws Exception {
-    BufferedReader br;
-    if(isOKHTTP()){
-      br = new BufferedReader(new InputStreamReader((connection.getInputStream())));
+    private ClientImpl() {
     }
-    else
-    {
-      br = new BufferedReader(new InputStreamReader((connection.getErrorStream())));
+
+    public static IClient build(IRequest request) {
+        var client = new ClientImpl();
+        client.addRequest(request);
+        return client;
     }
-    return br;
-  }
 
-  @Override
-  public void close()throws IOException{
-    if (connection != null) {
-        connection.disconnect();
+    private void addRequest(IRequest request) {
+        this.requestCall = request;
     }
-  }
 
-  private void openConnection()throws Exception {
-    try {
-      URL url = new URL(requestCall.getRequestPath().getPath());
-      connection = (HttpURLConnection) url.openConnection();
-      
-      if(requestCall.getRequestPath().getMethod() == Method.PATCH){
-          allowMethods(requestCall.getRequestPath().getMethod().getName());
-      }
-      
-      connection.setRequestMethod(requestCall.getRequestPath().getMethod().getName());
-      connection.setReadTimeout(requestCall.getTimeOut());
-     
-      if(requestCall.getHeader()==null)
-        throw new Exception("Error while initializing remote connection ");
-
-      requestCall.getHeader().keySet().forEach(param -> {
-          connection.setRequestProperty(param, requestCall.getHeader().get(param).toString());
-        });
-
-      connection.setDoOutput(true);
-      connection.setDoInput(true);
-    } catch (Exception e ) {
-      throw new Exception("Error while initializing remote connection " + e.getMessage());
+    @Override
+    public IResponse execute() {
+        try {
+            openConnection();
+            return requestCall.call(this);
+        } catch (Exception ex) {
+            Logger.getLogger(ClientImpl.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
     }
-  }
-  
-  private void allowMethods(String... methods) {
+
+    private boolean isOKHTTP() throws IOException {
+        return (connection.getResponseCode() >= HttpURLConnection.HTTP_OK) && (connection.getResponseCode() <= HttpURLConnection.HTTP_PARTIAL);
+    }
+
+    @Override
+    public OutputStream getRequestStream() throws Exception {
+        return connection.getOutputStream();
+    }
+
+    @Override
+    public BufferedReader getResponseStream() throws Exception {
+        BufferedReader br;
+        if (isOKHTTP()) {
+            if (connection.getContentEncoding() != null && Constants.GZIP_ENCODING.equalsIgnoreCase(connection.getContentEncoding())) {
+                br = new BufferedReader(new InputStreamReader(new GZIPInputStream(connection.getInputStream())));
+            } else {
+                if (connection.getContentEncoding() != null && Constants.DEFLATE_ENCODING.equalsIgnoreCase(connection.getContentEncoding())) {
+                    br = new BufferedReader(new InputStreamReader( new InflaterInputStream(connection.getInputStream(), new Inflater(true))));
+                } else {
+                    br = new BufferedReader(new InputStreamReader((connection.getInputStream())));
+                }
+            }
+        } else {
+            br = new BufferedReader(new InputStreamReader((connection.getErrorStream())));
+        }
+        return br;
+    }
+
+    @Override
+    public void close() throws IOException {
+        if (connection != null) {
+            connection.disconnect();
+        }
+    }
+
+    private void openConnection() throws Exception {
+        try {
+            URL url = new URL(requestCall.getRequestPath().getPath());
+            connection = (HttpURLConnection) url.openConnection();
+
+            if (requestCall.getRequestPath().getMethod() == Method.PATCH) {
+                allowMethods(requestCall.getRequestPath().getMethod().getName());
+            }
+
+            connection.setRequestMethod(requestCall.getRequestPath().getMethod().getName());
+            connection.setReadTimeout(requestCall.getTimeOut());
+
+            if (requestCall.getHeader() == null) {
+                throw new Exception("Error while initializing remote connection ");
+            }
+
+            requestCall.getHeader().keySet().forEach(param -> {
+                connection.setRequestProperty(param, requestCall.getHeader().get(param).toString());
+            });
+
+            connection.setDoOutput(true);
+            connection.setDoInput(true);
+        } catch (Exception e) {
+            throw new Exception("Error while initializing remote connection " + e.getMessage());
+        }
+    }
+
+    private void allowMethods(String... methods) {
         try {
             Field methodsField = HttpURLConnection.class.getDeclaredField("methods");
 
@@ -123,4 +132,4 @@ public class ClientImpl implements IClient {
             throw new IllegalStateException(e);
         }
     }
- }
+}
