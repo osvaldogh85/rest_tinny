@@ -1,13 +1,12 @@
 package com.restfulclient.impl;
 
-import com.restfulclient.call.Constants;
+import com.restfulclient.call.RestClientConstants;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import com.restfulclient.interfaces.IClient;
 import com.restfulclient.interfaces.IRequest;
 import com.restfulclient.interfaces.IResponse;
 import java.lang.reflect.Field;
@@ -20,17 +19,18 @@ import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
+import com.restfulclient.interfaces.IStreamManager;
 
-public class ClientImpl implements IClient {
+public class StreamManagerImpl implements IStreamManager {
 
     private HttpURLConnection connection;
     private IRequest requestCall;
 
-    private ClientImpl() {
+    private StreamManagerImpl() {
     }
 
-    public static IClient build(IRequest request) {
-        var client = new ClientImpl();
+    public static IStreamManager build(IRequest request) {
+        var client = new StreamManagerImpl();
         client.addRequest(request);
         return client;
     }
@@ -45,7 +45,7 @@ public class ClientImpl implements IClient {
             openConnection();
             return requestCall.call(this);
         } catch (Exception ex) {
-            Logger.getLogger(ClientImpl.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(StreamManagerImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
     }
@@ -63,10 +63,10 @@ public class ClientImpl implements IClient {
     public BufferedReader getResponseStream() throws Exception {
         BufferedReader br;
         if (isOKHTTP()) {
-            if (connection.getContentEncoding() != null && Constants.GZIP_ENCODING.equalsIgnoreCase(connection.getContentEncoding())) {
+            if (connection.getContentEncoding() != null && RestClientConstants.GZIP_ENCODING.equalsIgnoreCase(connection.getContentEncoding())) {
                 br = new BufferedReader(new InputStreamReader(new GZIPInputStream(connection.getInputStream())));
             } else {
-                if (connection.getContentEncoding() != null && Constants.DEFLATE_ENCODING.equalsIgnoreCase(connection.getContentEncoding())) {
+                if (connection.getContentEncoding() != null && RestClientConstants.DEFLATE_ENCODING.equalsIgnoreCase(connection.getContentEncoding())) {
                     br = new BufferedReader(new InputStreamReader( new InflaterInputStream(connection.getInputStream(), new Inflater(true))));
                 } else {
                     br = new BufferedReader(new InputStreamReader((connection.getInputStream())));

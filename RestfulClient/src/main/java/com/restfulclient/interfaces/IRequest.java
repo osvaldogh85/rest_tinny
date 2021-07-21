@@ -4,7 +4,7 @@ import java.util.Map;
 
 public interface IRequest extends IHeader{
 
-  public IResponse call(IClient client )throws Exception;
+  public IResponse call(IStreamManager client )throws Exception;
   public void addRequestPath(IRequestPath request);
   public void addRequestBody(IRequestBody requestBody );
   public IRequestPath getRequestPath();

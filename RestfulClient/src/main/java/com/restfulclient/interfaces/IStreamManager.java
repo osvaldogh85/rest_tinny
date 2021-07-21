@@ -4,7 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.OutputStream;
 
-public interface IClient {
+public interface IStreamManager {
 
   public OutputStream getRequestStream()throws Exception;
   public BufferedReader getResponseStream()throws Exception;

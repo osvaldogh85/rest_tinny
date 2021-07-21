@@ -3,22 +3,22 @@ import com.restfulclient.interfaces.IAuthorization;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
-public class HttpAuthorizationImpl implements IAuthorization {
+public class AuthorizationImpl implements IAuthorization {
 
     private String encodedToken;
-    private HttpAuthorizationImpl(String user, String password) {
+    private AuthorizationImpl(String user, String password) {
       this.createBasicAuthenticationToken(user, password);
     }
     
-    private HttpAuthorizationImpl(String token) {
+    private AuthorizationImpl(String token) {
       createBearerToken(token);
     }
     public static IAuthorization build(String user, String password) {
-        return new HttpAuthorizationImpl(user,password);
+        return new AuthorizationImpl(user,password);
     }
 
     public static IAuthorization build(String token) {
-        return new HttpAuthorizationImpl(token);
+        return new AuthorizationImpl(token);
     }
 
     private void createBasicAuthenticationToken(String user, String password) {

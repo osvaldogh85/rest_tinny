@@ -9,7 +9,7 @@ package com.restfulclient.call;
  *
  * @author odge
  */
-public class Constants {
+public class RestClientConstants {
    public static final String API_CONTENT="Content-Type";
    public static final String API_ACCEPT  ="Accept";
    public static final String JSON_CONTENT_TYPE="application/json";

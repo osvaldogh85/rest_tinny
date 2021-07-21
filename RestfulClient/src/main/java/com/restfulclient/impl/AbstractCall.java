@@ -57,32 +57,16 @@ public abstract class AbstractCall implements IHTTPCall {
      * Method to implement the restful API call
      */
     public abstract void prepareCall();
-
-    public abstract IAuthorization addAutentication();
-
-    public abstract IAuthorization addUserAndPassAutentication();
-
-    private void configurAuthorization() {
-        IAuthorization bearer = this.addAutentication();
-        if (bearer != null) {
-             this.addHeader(bearer.getAuthorization(), bearer.getAuthorizationToken());
-             return;
-        }
-             
-        IAuthorization userAndPass = this.addUserAndPassAutentication();
-        if (userAndPass != null) {
-          this.addHeader(userAndPass.getAuthorization(), userAndPass.getAuthorizationToken());         
-        }        
-    }
+    public abstract void addAutentication();
 
     @Override
     public IResponseResult executeCall() {
         create();
         checkRequest();
-        configurAuthorization();
+        addAutentication();
         prepareCall();
         fillRequest();
-        IResponse response = ClientImpl.build(request).execute();
+        IResponse response = StreamManagerImpl.build(request).execute();
         return response.getIResponseResult();
     }
 

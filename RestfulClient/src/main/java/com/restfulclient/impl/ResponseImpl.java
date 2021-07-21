@@ -9,10 +9,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import com.restfulclient.interfaces.IClient;
 import com.restfulclient.interfaces.IResponse;
 import com.restfulclient.interfaces.IResponseResult;
 import java.util.List;
+import com.restfulclient.interfaces.IStreamManager;
 
 public class ResponseImpl implements IResponse {
 
@@ -26,7 +26,7 @@ public class ResponseImpl implements IResponse {
     }
 
     @Override
-    public void process(IClient client) {
+    public void process(IStreamManager client) {
         StringBuilder sb = new StringBuilder();
         BufferedReader br = null;
         try {
@@ -79,7 +79,7 @@ public class ResponseImpl implements IResponse {
             }
 
             @Override
-            public String getJSON() {
+            public String getResponseContent() {
                 return content;
             }
            

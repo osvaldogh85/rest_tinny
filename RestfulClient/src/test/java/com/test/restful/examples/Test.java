@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 package com.test.restful.examples;
-import com.restfulclient.call.Constants;
+import com.restfulclient.call.RestClientConstants;
 
 import com.restfulclient.call.RestClient;
 import com.restfulclient.impl.AbstractCall.RequestType;
@@ -55,7 +55,7 @@ public class Test {
      //  var ls = response.getList();
      //    System.out.println(ls.toString());
         
-        var content = response.getJSON();
+        var content = response.getResponseContent();
         System.out.println(content);
         
         

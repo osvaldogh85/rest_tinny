@@ -15,5 +15,5 @@ import java.util.Map;
 public interface IResponseResult {
      public Map<String, Object> getMap(); 
      public List<Map<String, Object>> getList();
-     public String getJSON(); 
+     public String getResponseContent(); 
 }

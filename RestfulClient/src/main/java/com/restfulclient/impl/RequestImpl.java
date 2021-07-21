@@ -7,12 +7,12 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.JSONObject;
-import com.restfulclient.interfaces.IClient;
 import com.restfulclient.interfaces.IHeader;
 import com.restfulclient.interfaces.IRequest;
 import com.restfulclient.interfaces.IRequestBody;
 import com.restfulclient.interfaces.IRequestPath;
 import com.restfulclient.interfaces.IResponse;
+import com.restfulclient.interfaces.IStreamManager;
 
 public class RequestImpl implements IRequest {
 
@@ -70,7 +70,7 @@ public class RequestImpl implements IRequest {
   }
 
   @Override
-  public IResponse call(IClient client)throws Exception {
+  public IResponse call(IStreamManager client)throws Exception {
     if(body.getRequestBody() != null){
         try {
             writeBodyRequest(client);
@@ -83,7 +83,7 @@ public class RequestImpl implements IRequest {
     return response;
   }
 
-  private void writeBodyRequest(IClient manager) throws IOException{
+  private void writeBodyRequest(IStreamManager manager) throws IOException{
     DataOutputStream wr = null;
       try {
           wr = new DataOutputStream(manager.getRequestStream());

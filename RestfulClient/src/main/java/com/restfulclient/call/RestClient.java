@@ -5,12 +5,14 @@
  */
 package com.restfulclient.call;
 
-import com.restfulclient.impl.HTTPBase;
+import com.restfulclient.impl.AbstractCall;
+import com.restfulclient.impl.AuthorizationImpl;
 import com.restfulclient.impl.Method;
+import com.restfulclient.interfaces.IAuthorization;
 import com.restfulclient.interfaces.IHTTPCall;
 import java.util.Map;
 
-public class RestClient extends HTTPBase {
+public class RestClient extends AbstractCall {
 
     private final String serverURL;
     private final String requestMethodURL;
@@ -19,52 +21,50 @@ public class RestClient extends HTTPBase {
     private final RequestType TYPE_SELECTED;
     private Map<String, Object> queryParameters = null;
     private Map<String, Object> optionalHeaderParameters = null;
-
+    private String apiToken=null, user=null, pass=null;
     private RestClient(String serverURL, String requestMethodPath, Method method, RequestType requestType, Map<String, Object> optionalHeaderParameters, String bodyContent, String apiToken) {
-        super(apiToken, null, null);
         this.serverURL = serverURL;
         this.requestMethodURL = requestMethodPath;
         this.bodyContent = bodyContent;
         this.method = method;
         this.TYPE_SELECTED = requestType;
         this.optionalHeaderParameters = optionalHeaderParameters;
-
+        this.apiToken = apiToken;
     }
 
     private RestClient(String serverURL, String requestMethodPath, Method method, Map<String, Object> optionalHeaderParameters, String apiToken) {
-        super(apiToken, null, null);
         this.serverURL = serverURL;
         this.requestMethodURL = requestMethodPath;
         this.bodyContent = null;
         this.method = method;
         this.TYPE_SELECTED = RequestType.TYPE_JSON_QUERY;
         this.optionalHeaderParameters = optionalHeaderParameters;
-
+        this.apiToken = apiToken;
     }
 
     private RestClient(String serverURL, String requestMethodPath, Method method, Map<String, Object> optionalHeaderParameters, String user, String password) {
-        super(null, user, password);
         this.serverURL = serverURL;
         this.requestMethodURL = requestMethodPath;
         this.bodyContent = null;
         this.method = method;
         this.TYPE_SELECTED = RequestType.TYPE_JSON_QUERY;
-        this.optionalHeaderParameters = optionalHeaderParameters;
-
+        this.optionalHeaderParameters = optionalHeaderParameters;       
+        this.user = user;
+        this.pass = password;
     }
 
     private RestClient(String serverURL, String requestMethodPath, Method method, RequestType requestType, Map<String, Object> optionalHeaderParameters, String bodyContent, String user, String password) {
-        super(null, user, password);
         this.serverURL = serverURL;
         this.requestMethodURL = requestMethodPath;
         this.bodyContent = bodyContent;
         this.method = method;
         this.TYPE_SELECTED = requestType;
-        this.optionalHeaderParameters = optionalHeaderParameters;
+        this.optionalHeaderParameters = optionalHeaderParameters;       
+        this.user = user;
+        this.pass = password;
     }
 
     private RestClient(String serverURL, String requestMethodPath, Method method, RequestType requestType, Map<String, Object> optionalHeaderParameters, Map<String, Object> queryParameters, String apiToken) {
-        super(apiToken, null, null);
         this.serverURL = serverURL;
         this.requestMethodURL = requestMethodPath;
         this.bodyContent = null;
@@ -72,11 +72,10 @@ public class RestClient extends HTTPBase {
         this.TYPE_SELECTED = requestType;
         this.queryParameters = queryParameters;
         this.optionalHeaderParameters = optionalHeaderParameters;
-
+        this.apiToken = apiToken;
     }
 
     private RestClient(String serverURL, String requestMethodPath, Method method, RequestType requestType, Map<String, Object> optionalHeaderParameters, Map<String, Object> queryParameters, String user, String password) {
-        super(null, user, password);
         this.serverURL = serverURL;
         this.requestMethodURL = requestMethodPath;
         this.bodyContent = null;
@@ -84,10 +83,11 @@ public class RestClient extends HTTPBase {
         this.TYPE_SELECTED = requestType;
         this.queryParameters = queryParameters;
         this.optionalHeaderParameters = optionalHeaderParameters;
+        this.user = user;
+        this.pass = password;
     }
 
     private RestClient(String serverURL, String requestMethodPath, Method method, RequestType requestType, Map<String, Object> optionalHeaderParameters, Map<String, Object> queryParameters, String bodyContent, String user, String password) {
-        super(null, user, password);
         this.serverURL = serverURL;
         this.requestMethodURL = requestMethodPath;
         this.bodyContent = bodyContent;
@@ -95,6 +95,8 @@ public class RestClient extends HTTPBase {
         this.TYPE_SELECTED = requestType;
         this.queryParameters = queryParameters;
         this.optionalHeaderParameters = optionalHeaderParameters;
+        this.user = user;
+        this.pass = password;
     }
 
     public static IHTTPCall build(String serverURL, String requestMethodPath, Method method, Map<String, Object> optionalHeaderParameters, String apiToken) {
@@ -124,10 +126,22 @@ public class RestClient extends HTTPBase {
     public static IHTTPCall build(String serverURL, String requestMethodPath, Method method, RequestType requestType, Map<String, Object> optionalHeaderParameters, Map<String, Object> queryParameters, String bodyContent, String user, String password) {
         return new RestClient(serverURL, requestMethodPath, method, requestType, optionalHeaderParameters, queryParameters, bodyContent, user, password);
     }
+    
+     @Override
+    public IAuthorization addAutentication() {
+        if (apiToken != null && !apiToken.equals("")) {
+            return AuthorizationImpl.build(apiToken);
+        }
+
+        if (user != null && !user.equals("") && pass != null && !pass.equals("")) {
+            return AuthorizationImpl.build(user, pass);
+        }
+
+        return null;
+    }
 
     @Override
-    public void prepareCall() {
-        super.prepareCall();
+    public void prepareCall() {       
         optionalHeaderParameters.keySet().forEach(param -> {
             super.addHeader(param, optionalHeaderParameters.get(param).toString());
         });
