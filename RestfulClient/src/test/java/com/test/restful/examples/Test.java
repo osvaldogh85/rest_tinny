@@ -20,7 +20,7 @@ import java.util.Map;
 public class Test {
     public static void main(String args[]){
        String json="{\n" +
-                "  \"name\": \"Jhon Doiron\",\n" +
+                "  \"name\": \"Jhon Doe\",\n" +
                 "  \"location\": \"Canada\",\n"  +
                 "  \"birthDate\": \"1975-02-07T06:00:00.000+00:00\" \n}";
         

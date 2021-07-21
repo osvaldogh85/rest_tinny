@@ -19,7 +19,7 @@ public abstract class AbstractCall implements IHTTPCall {
     private IRequestPath path = null;
     private IRequest request = null;
     private IRequestBody body = null;
-    private boolean IS_FOR_POST = false;
+    private boolean USE_BODY_ON_REQUEST = false;
 
     public AbstractCall() {
     }
@@ -36,14 +36,14 @@ public abstract class AbstractCall implements IHTTPCall {
     }
 
     private void checkRequest() {
-        if (IS_FOR_POST && this.body.getRequestBody() == null) {
+        if (USE_BODY_ON_REQUEST && this.body.getRequestBody() == null) {
             try {
                 throw new Exception("Request is for POST or PUT or PATCH or DELETE but not anybut TYPE_JSON_BODY not found");
             } catch (Exception ex) {
                 Logger.getLogger(AbstractCall.class.getName()).log(Level.SEVERE, null, ex);
             }
         } else {
-            if (!IS_FOR_POST && this.body.getRequestBody() != null) {
+            if (!USE_BODY_ON_REQUEST && this.body.getRequestBody() != null) {
                 try {
                     throw new Exception("Request is NOT POST or PUT but TYPE_JSON_BODY not found");
                 } catch (Exception ex) {
@@ -99,15 +99,15 @@ public abstract class AbstractCall implements IHTTPCall {
                     path.addPathForHTTPQuery(url, webServiceMethod, httpMethod);
                     break;
                 case TYPE_JSON_BODY:
-                    IS_FOR_POST = true;
+                    USE_BODY_ON_REQUEST = true;
                     path.addPathForRequestForJSONBody(url, webServiceMethod, httpMethod);
                     break;
                 case TYPE_JSON_QUERY_AND_BODY:
-                    IS_FOR_POST = true;
+                    USE_BODY_ON_REQUEST = true;
                     path.addPathForJSONQuery(url, webServiceMethod, httpMethod);
                     break;
                 case TYPE_HTTP_QUERY_AND_BODY:
-                    IS_FOR_POST = true;
+                    USE_BODY_ON_REQUEST = true;
                     path.addPathForHTTPQuery(url, webServiceMethod, httpMethod);
                     break;
             }

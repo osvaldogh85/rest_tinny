@@ -127,18 +127,20 @@ public class RestClient extends AbstractCall {
         return new RestClient(serverURL, requestMethodPath, method, requestType, optionalHeaderParameters, queryParameters, bodyContent, user, password);
     }
     
-     @Override
-    public IAuthorization addAutentication() {
-        if (apiToken != null && !apiToken.equals("")) {
-            return AuthorizationImpl.build(apiToken);
-        }
-
-        if (user != null && !user.equals("") && pass != null && !pass.equals("")) {
-            return AuthorizationImpl.build(user, pass);
-        }
-
-        return null;
+   @Override
+   public void addAutentication() {
+    IAuthorization authorization =null;
+    if (apiToken != null && !apiToken.equals("")) {
+      authorization= AuthorizationImpl.build(apiToken);
     }
+
+    if (user != null && !user.equals("") && pass != null && !pass.equals("")) {
+      authorization= AuthorizationImpl.build(user, pass);
+    }
+    if (authorization != null) {
+      this.addHeader(authorization.getAuthorization(), authorization.getAuthorizationToken());
+    }
+  }
 
     @Override
     public void prepareCall() {       
