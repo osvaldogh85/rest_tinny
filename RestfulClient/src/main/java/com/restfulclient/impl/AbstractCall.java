@@ -1,6 +1,5 @@
 package com.restfulclient.impl;
 
-import com.restfulclient.interfaces.IAuthorization;
 import com.restfulclient.interfaces.IHTTPCall;
 import com.restfulclient.interfaces.IMessage;
 import com.restfulclient.interfaces.IRequest;
@@ -11,6 +10,9 @@ import com.restfulclient.interfaces.IResponseResult;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Abstract representation of any restful call
+ */
 /**
  * Abstract representation of any restful call
  */
@@ -57,7 +59,9 @@ public abstract class AbstractCall implements IHTTPCall {
      * Method to implement the restful API call
      */
     public abstract void prepareCall();
+
     public abstract void addAutentication();
+
 
     @Override
     public IResponseResult executeCall() {
@@ -88,33 +92,30 @@ public abstract class AbstractCall implements IHTTPCall {
         }
     }
 
-    protected void addURLInfo(String url, String webServiceMethod, Method httpMethod, RequestType requestType) {
+    protected void addURLInfo(String url, String webServiceMethod, Method httpMethod, CallType requestType) {
         if (path != null) {
-            
             switch (requestType) {
-                case TYPE_JSON_QUERY :
+                case TYPE_BASIC_JSON_QUERY :
                     path.addPathForJSONQuery(url, webServiceMethod, httpMethod);
                     break;
-                case TYPE_HTTP_QUERY:
+                case TYPE_BASIC_HTTP_QUERY:
                     path.addPathForHTTPQuery(url, webServiceMethod, httpMethod);
                     break;
                 case TYPE_JSON_BODY:
                     USE_BODY_ON_REQUEST = true;
                     path.addPathForRequestForJSONBody(url, webServiceMethod, httpMethod);
                     break;
-                case TYPE_JSON_QUERY_AND_BODY:
+                case TYPE_BASIC_JSON_QUERY_AND_BODY:
                     USE_BODY_ON_REQUEST = true;
                     path.addPathForJSONQuery(url, webServiceMethod, httpMethod);
                     break;
-                case TYPE_HTTP_QUERY_AND_BODY:
+                case TYPE_BASIC_HTTP_QUERY_AND_BODY:
                     USE_BODY_ON_REQUEST = true;
                     path.addPathForHTTPQuery(url, webServiceMethod, httpMethod);
                     break;
             }
         }
     }
-    
-     public enum RequestType {
-        TYPE_JSON_QUERY, TYPE_HTTP_QUERY, TYPE_JSON_BODY,TYPE_JSON_QUERY_AND_BODY,TYPE_HTTP_QUERY_AND_BODY;
-    } 
+
+
 }

@@ -4,64 +4,84 @@
  * and open the template in the editor.
  */
 package com.test.restful.examples;
-import com.restfulclient.call.RestClientConstants;
 
+import com.restfulclient.call.RestClientConstants;
 import com.restfulclient.call.RestClient;
-import com.restfulclient.impl.AbstractCall.RequestType;
+import com.restfulclient.impl.CallType;
 import com.restfulclient.impl.Method;
-import com.restfulclient.interfaces.IResponseResult;
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  *
  * @author odge
  */
 public class Test {
-    public static void main(String args[]){
-       String json="{\n" +
-                "  \"name\": \"Jhon Doe\",\n" +
-                "  \"location\": \"Canada\",\n"  +
-                "  \"birthDate\": \"1975-02-07T06:00:00.000+00:00\" \n}";
-        
-    /*     String json="{   \n" +
-"      \"id\":\"5\"\n" +
-"}";*/
-      Map<String,Object> e =  new HashMap<String,Object>();
-      e.put("id",10001);
-  /*  String json ="{\n" +
-"  \"interviewee\": {\n" +
-"    \"firstName\": \"Osvaldo\",\n" +
-"    \"lastName\": \"Gonzalez\",\n" +
-"    \"role\": \"Admin\",\n" +
-"    \"language\": \"EN\",\n" +
-"    \"interpreter\": true\n" +
-"  },\n" +
-"  \"claim\": {\n" +
-"    \"claimNumber\": \"CN-12345\",\n" +
-"    \"insured\": {\n" +
-"      \"firstName\": \"Osvaldo\",\n" +
-"      \"lastName\": \"Gonzalez\"\n" +
-"    },\n" +
-"    \"lossOccurredAt\": \"2021-05-14T12:00:00.000Z\"\n" +
-"  }\n" +
-"}";*/
-      
-       
-     
-        IResponseResult response = (IResponseResult) RestClient.build("http://localhost:8080/api/test", "getPersonQuery", Method.GET,RequestType.TYPE_JSON_QUERY,e,e, null).executeCall();
-        
-        
-     //  var ls = response.getList();
-     //    System.out.println(ls.toString());
-        
+
+    public static void main(String args[]) {
+
+        String apiKey = null;
+
+        String body = "{\n"
+                + "  \"name\": \"Jhon Doe\",\n"
+                + "  \"location\": \"Canada\",\n"
+                + "  \"birthDate\": \"1975-02-07T06:00:00.000+00:00\" \n}";
+
+        var headerMap = new HashMap<String, Object>();
+        headerMap.put(RestClientConstants.API_CONTENT, RestClientConstants.JSON_CONTENT_TYPE);
+        headerMap.put(RestClientConstants.API_ACCEPT, RestClientConstants.API_ACCEPT_CONTENT);
+        headerMap.put(RestClientConstants.API_USER_AGENT_TITLE, RestClientConstants.API_USER_AGENT);
+        headerMap.put(RestClientConstants.API_CONNECTION, RestClientConstants.API_KEEP_ALIVE);
+
+        /**
+         * ****************POST Example**************************
+         */
+        var response = RestClient.build("http://localhost:8088/api/test",
+                "savePerson",
+                Method.POST,
+                CallType.TYPE_JSON_BODY,
+                headerMap,
+                body,
+                apiKey).executeCall();
+
+        var mp = response.getMap();
+        System.out.println(mp.toString());
         var content = response.getResponseContent();
         System.out.println(content);
-        
-        
-         var mp = response.getMap();
-         System.out.println(mp.toString());
-       
+
+        /**
+         * ****************GET example******************
+         */
+        var queryParams = new HashMap<String, Object>();
+        queryParams.put("id", 10001);
+
+        response = RestClient.build("http://localhost:8088/api/test",
+                "getPerson",
+                Method.GET,
+                CallType.TYPE_BASIC_JSON_QUERY,
+                headerMap,
+                queryParams,
+                apiKey).executeCall();
+
+        content = response.getResponseContent();
+        System.out.println(content);
+
+        mp = response.getMap();
+        System.out.println(mp.toString());
+
+        response = RestClient.build("http://localhost:8088/api/test",
+                "getPerson",
+                Method.GET,
+                CallType.TYPE_BASIC_HTTP_QUERY,
+                headerMap,
+                queryParams,
+                apiKey).executeCall();
+
+        content = response.getResponseContent();
+        System.out.println(content);
+
+        mp = response.getMap();
+        System.out.println(mp.toString());
+
     }
-    
+
 }

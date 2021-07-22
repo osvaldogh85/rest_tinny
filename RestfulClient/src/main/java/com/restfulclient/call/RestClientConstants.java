@@ -5,10 +5,6 @@
  */
 package com.restfulclient.call;
 
-/**
- *
- * @author odge
- */
 public class RestClientConstants {
    public static final String API_CONTENT="Content-Type";
    public static final String API_ACCEPT  ="Accept";
@@ -20,5 +16,6 @@ public class RestClientConstants {
    public static final String GZIP_ENCODING="gzip";
    public static final String DEFLATE_ENCODING="deflate";
    public static final String AUTHORIZATION_HEADER="Authorization";
-   
+   public static final String API_CONNECTION="Connection";
+   public static final String API_KEEP_ALIVE="keep-alive";
 }
