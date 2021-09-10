@@ -4,6 +4,7 @@ import com.restfulclient.interfaces.IRequestBody;
 
 public class RequestBody implements IRequestBody {
 
+    public static final int ZERO_LENGTH=0;
     private byte[] body;
     private BodyType bodyType;
 
@@ -30,6 +31,11 @@ public class RequestBody implements IRequestBody {
     public void clean() {
         body=null;
         bodyType=null;
+    }
+
+    @Override
+    public long getBodyLength() {
+        return this.body.length;
     }
 
 }

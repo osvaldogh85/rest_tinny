@@ -110,32 +110,45 @@ public class Client implements IClient {
 
     private IResponse executeCall() throws ApiException, IOException {
         try {
+            
             if (request.getHeader() == null) {
                 throw new ApiException("Error while initializing remote connection No header defined ");
             }
+            
             URL url = new URL(request.getRequestPath().getPath());
             connection = (HttpURLConnection) url.openConnection();
             connection.setConnectTimeout(15000);
-            connection.setReadTimeout(45000);
+            connection.setReadTimeout(45000);        
+            request.addHeader(RestClientConstants.HOST, url.getHost());
+            
+            if(request.useBodyRequest()){
+                request.addHeader(RestClientConstants.API_CONTENT_LENGTH, request.useBodyRequest() ? request.getBody().getBodyLength() : RequestBody.ZERO_LENGTH);
+            }
+            
             request.getHeader().keySet().forEach(param -> {
                 connection.setRequestProperty(param, request.getHeader().get(param).toString());
             });
+            
             if(request.getMethod() == Method.PATCH){
                allowMethods(Method.PATCH.getName());
             }
+            
             connection.setDefaultUseCaches(false);
             connection.setUseCaches(false);
             connection.setRequestMethod(request.getMethod().getName());
+            
             if (request.useBodyRequest()) {
-                connection.setDoOutput(true);
-                connection.setDoInput(true);
+               connection.setDoOutput(true);
+               connection.setDoInput(true);
             } else {
-                connection.setDoOutput(false);
-                connection.setDoInput(true);
+               connection.setDoOutput(false);
+               connection.setDoInput(true);
             }
+            
             request.execute(this);
             response = Response.build();
             response.process(this);
+            
             return response;
         } catch (ApiException ex) {
             try {

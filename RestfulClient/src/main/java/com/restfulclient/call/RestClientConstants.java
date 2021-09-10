@@ -59,7 +59,7 @@ public class RestClientConstants {
         return "****" + System.currentTimeMillis() + "****";
     }
 
-    public static String urlencoded(LinkedHashMap<String, Object> data, Charset charset) throws Exception {
+    public static String urlencoded(LinkedHashMap<String, Object> data, Charset charset) {
         StringBuilder encode = new StringBuilder();
         if (data.isEmpty()) {
             return null;

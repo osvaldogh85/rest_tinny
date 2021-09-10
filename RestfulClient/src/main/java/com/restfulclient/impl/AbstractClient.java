@@ -7,7 +7,9 @@ import java.io.IOException;
 import com.restfulclient.interfaces.IClient;
 import com.restfulclient.interfaces.IAbstractClient;
 import com.restfulclient.interfaces.IRequestBody;
-import com.restfulclient.interfaces.IRequestParameters;
+import com.restfulclient.interfaces.IRequestPath;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Abstract representation of any restful call
@@ -31,11 +33,12 @@ public abstract class AbstractClient implements IAbstractClient {
     public abstract IAbstractClient addAutentication(String user, String password); 
 
     @Override
-    public IResponseResult executeCall() throws IOException, ApiException {
+    public IResponseResult execute() throws IOException, ApiException {
       IClient stream=null;
       IResponse response =null;
         try {         
-            prepareCall();          
+            prepareCall();  
+            request.getRequestPath().getRequestParameter().processParameters();
             stream = Client.build(request);
             response = stream.execute();
             return response.getIResponseResult();
@@ -47,16 +50,13 @@ public abstract class AbstractClient implements IAbstractClient {
         }        
     }
 
-    protected void addRequestParameter(IRequestParameters requestParameter) throws Exception {
-        if (request.getRequestPath() != null) {
-            request.getRequestPath().addRequestParameter(requestParameter);
-        }
-    }
-
-    protected void addHeader(String name, String value) {
+   
+    @Override
+    public IAbstractClient addHeader(String name, Object value) {
         if (request != null) {
             request.addHeader(name, value);
         }
+        return this;
     }
     
     protected void addFormMultipartParams(String name, Object value) {
@@ -69,5 +69,32 @@ public abstract class AbstractClient implements IAbstractClient {
         if (request != null) {
             request.addBody(body);
         }
+    }
+
+    @Override
+    public IAbstractClient buildRequestParameterAccessor(ParameterType type) {
+          if (request.getRequestPath() != null) {
+            try {
+                request.getRequestPath().addRequestParameter(RequestParameters.build(type));
+            } catch (Exception ex) {
+                Logger.getLogger(AbstractClient.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+       return this;
+    }
+
+    @Override
+    public IAbstractClient addNewRequestParameter(String name, Object value)throws Exception {
+       if (request.getRequestPath() != null) {
+           if(request.getRequestPath().getRequestParameter() != null){
+              request.getRequestPath().getRequestParameter().addParameter(name, value);
+           }
+       }
+       return this;
+    }
+    
+    @Override
+    public IRequestPath getRequestPath(){
+        return this.request.getRequestPath();
     }
 }

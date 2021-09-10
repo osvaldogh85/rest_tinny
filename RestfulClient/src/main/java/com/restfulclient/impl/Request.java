@@ -49,7 +49,7 @@ public class Request implements IRequest {
     }
 
     @Override
-    public void addHeader(String name, String value) {
+    public void addHeader(String name, Object value) {
         if (headerImpl != null) {
             headerImpl.addHeader(name, value);
         }
@@ -68,7 +68,6 @@ public class Request implements IRequest {
     public IRequestPath getRequestPath() {
         return path;
     }
-
   
     @Override
      public void execute(IClient client) throws ApiException {
@@ -239,6 +238,11 @@ public class Request implements IRequest {
       headerImpl=null;
     }
 
+    @Override
+    public IRequestBody getBody() {
+        return body;
+    }
+
  
     private class CPHeaderImpl implements IHeader {
 
@@ -254,7 +258,7 @@ public class Request implements IRequest {
         }
 
         @Override
-        public void addHeader(String name, String value) {
+        public void addHeader(String name, Object value) {
             headerMap.put(name, value);
         }
 

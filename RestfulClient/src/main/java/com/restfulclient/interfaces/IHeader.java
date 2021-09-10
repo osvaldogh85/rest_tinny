@@ -4,7 +4,7 @@ import java.util.Map;
 
 public interface IHeader {
 
-  public void addHeader(String name  , String value);
+  public void addHeader(String name  , Object value);
   public Map<String, Object> getHeader(); 
   public void clean();
 }

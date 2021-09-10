@@ -22,10 +22,10 @@ public class RequestPath implements IRequestPath {
 
     private void create(final String url, final String service) throws Exception {
         if (url == null) {
-            throw new Exception("Error while creating path there is no url to request");
+            throw new Exception("Error while creating path there is no server url defined to request");
         }
         if (service == null) {
-            throw new Exception("Error while creating path there is no service to request");
+            throw new Exception("Error while creating path there is no service endpoint defined to request");
         }
 
         StringBuilder serviceToCall = new StringBuilder();
@@ -55,14 +55,13 @@ public class RequestPath implements IRequestPath {
     @Override
     public String getEncodedParameters() {
         if (parameters != null) {
-            return this.parameters.getEncodedParameters();
+           return this.parameters.getEncodedParameters();
         }
-
         return null;
     }
 
     @Override
-    public void addRequestParameter(IRequestParameters parameters) throws Exception {
+    public void addRequestParameter(IRequestParameters parameters)  {
         this.parameters = parameters;
     }
 
@@ -73,5 +72,10 @@ public class RequestPath implements IRequestPath {
         
         parameters = null;
         path = null;
+    }
+
+    @Override
+    public IRequestParameters getRequestParameter() {
+        return parameters;
     }
 }

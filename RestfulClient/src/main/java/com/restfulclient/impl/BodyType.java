@@ -15,10 +15,10 @@ public enum BodyType {
    private final int code;
 
    BodyType(int code) {
-       this.code = code;
+     this.code = code;
    }
     
     public int getCode() {
-        return this.code;
+      return this.code;
     }
 }

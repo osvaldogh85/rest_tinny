@@ -11,6 +11,7 @@ import com.restfulclient.impl.Authorization;
 import com.restfulclient.impl.BodyType;
 import com.restfulclient.impl.Method;
 import com.restfulclient.impl.ParameterType;
+import com.restfulclient.impl.RequestPath;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.logging.Level;
@@ -23,8 +24,12 @@ import java.util.logging.Logger;
 public class Test {
 
     public static void main(String args[]) {
-
+ RequestPath pa=null;
         try {
+            pa = (RequestPath) RequestPath.build("http://localhost:8088", "api/test/savePerson");
+            pa = (RequestPath) RequestPath.build("http://localhost:8088/", "api/test/savePerson");
+            pa = (RequestPath) RequestPath.build("http://localhost:8088/", "/api/test/savePerson");
+            pa = (RequestPath) RequestPath.build("http://localhost:8088", "/api/test/savePerson");
             
             String apiKey = null;
             

@@ -6,4 +6,5 @@ public interface IRequestBody {
    public byte[] getMessage();
    public BodyType getBodyType();
    public void clean();
+   public long getBodyLength();
 }

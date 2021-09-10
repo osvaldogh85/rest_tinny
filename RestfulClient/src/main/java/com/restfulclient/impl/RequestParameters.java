@@ -5,6 +5,7 @@
  */
 package com.restfulclient.impl;
 
+import com.restfulclient.call.RestClientConstants;
 import com.restfulclient.interfaces.IRequestParameters;
 import java.util.LinkedHashMap;
 
@@ -12,24 +13,26 @@ import java.util.LinkedHashMap;
  *
  * @author odge
  */
-public class RequestParameters implements IRequestParameters {
+public final class RequestParameters implements IRequestParameters {
 
     private LinkedHashMap<String, Object> parameters = new LinkedHashMap<String, Object>();
     private StringBuilder parametersEncoded = null;
+    private ParameterType type = null;
     
-    private RequestParameters() {        
+    private RequestParameters(ParameterType type) {      
+         this.setParamterType(type);
     }
-    
-    public static IRequestParameters build() {
-        return new RequestParameters();
+        
+    public static IRequestParameters build(ParameterType type) {
+        return new RequestParameters(type);
     }
-
   
-    private void processParameters(ParameterType type) throws Exception {
+    @Override
+    public void processParameters() throws ApiException {       
         switch (type) {
             case PATH_VARIABLES:
                 if (parameters.isEmpty()) {
-                    throw new Exception("Error while creating path there is no parameters to json request path");
+                    throw new ApiException("Error while creating path there is no parameters to json request path");
                 }
                 // request should be like this https://server_url/methodName/000-00-000003-1
                 parametersEncoded = new StringBuilder();
@@ -46,7 +49,7 @@ public class RequestParameters implements IRequestParameters {
                 break;
             case QUERY_PARAMS:
                 if (parameters.isEmpty()) {
-                    return;
+                       throw new ApiException("Error while creating path there is no parameters to json request path");
                 }
                 parametersEncoded = new StringBuilder();
                 // https://server/methodName
@@ -56,7 +59,7 @@ public class RequestParameters implements IRequestParameters {
                 //param2             value2
                 //***************************
                 //paramN-1             valueN-1
-                parametersEncoded.append("?");
+                 parametersEncoded.append("?");
                 var paramCount = parameters.keySet().size() - 1;
                 var count = 0;
                 // https://server_url/methodName?
@@ -72,17 +75,20 @@ public class RequestParameters implements IRequestParameters {
                 }
                 parameters.clear();
                 break;
+            case FOR_URL_ENCODED:
+                 if (parameters.isEmpty()) {
+                       throw new ApiException("Error while creating path there is no parameters to json request path");
+                }
+                parametersEncoded = new StringBuilder();
+                parametersEncoded.append(RestClientConstants.urlencoded(parameters, null));
+                parameters.clear();
+                break;
         }
     }
 
     @Override
-    public void addParameter(ParameterType type,LinkedHashMap<String, Object> params) throws Exception {       
-        params.keySet().forEach(key -> {
-           this.parameters.put(key, params.get(key));
-        });
-        params.clear();
-        
-        processParameters(type);
+    public void addParameter(String key , Object value) {       
+        this.parameters.put(key, value);       
     }
 
     @Override
@@ -97,6 +103,11 @@ public class RequestParameters implements IRequestParameters {
     public void clean() {
        this.parameters=null;
        this.parametersEncoded=null;
+    }
+
+    @Override
+    public void setParamterType(ParameterType type) {
+       this.type=type;
     }
 
 }

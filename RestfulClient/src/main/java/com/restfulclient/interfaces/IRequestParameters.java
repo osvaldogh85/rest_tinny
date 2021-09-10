@@ -5,15 +5,17 @@
  */
 package com.restfulclient.interfaces;
 
+import com.restfulclient.impl.ApiException;
 import com.restfulclient.impl.ParameterType;
-import java.util.LinkedHashMap;
 
 /**
  *
  * @author odge
  */
 public interface IRequestParameters {
-     public void addParameter(ParameterType type,LinkedHashMap<String, Object> params) throws Exception;
+     public void addParameter(String key , Object value);
      public String getEncodedParameters();
+     public void setParamterType(ParameterType type);
      public void clean();
+     public void processParameters()  throws ApiException;
 }
