@@ -12,4 +12,5 @@ package com.restfulclient.interfaces;
 public interface IAuthorization {
     public default String getAuthorization() {return "Authorization";}
     public String getAuthorizationToken();
+    public void clean();
 }

@@ -19,5 +19,5 @@ public interface IClient {
   public IResponse execute() throws IOException,ApiException;
   public boolean isOKHTTP() throws IOException;
   public void addRequestProperty(String param, String value);
-
+  public void clean();
 }

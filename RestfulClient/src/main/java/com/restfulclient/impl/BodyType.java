@@ -9,13 +9,12 @@ package com.restfulclient.impl;
  *
  * @author odge
  */
-public enum MediaType {
-  JSON_QUERY(1), HTTP_QUERY(2), PLAIN_BODY(3),JSON_QUERY_AND_BODY(4),HTTP_QUERY_AND_BODY(5),MULTIPART_FORM(6),BINARY(7),MULTIPART_FORM_HTTP_QUERY(8),MULTIPART_FORM_JSON_QUERY(8);
-
+public enum BodyType {
+  FORM_DATA(1), URL_FORM_ENCODED(2), NONE(3),RAW(4),BINARY(5),MULTIPART_FORM(6);
   
-  private final int code;
+   private final int code;
 
-   MediaType(int code) {
+   BodyType(int code) {
        this.code = code;
    }
     

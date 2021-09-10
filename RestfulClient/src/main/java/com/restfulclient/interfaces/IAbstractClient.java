@@ -14,4 +14,6 @@ import java.io.IOException;
  */
 public interface IAbstractClient {
      public IResponseResult executeCall()throws IOException, ApiException;
+     public IAbstractClient addAutentication(String apiKey); 
+     public IAbstractClient addAutentication(String user, String password); 
 }

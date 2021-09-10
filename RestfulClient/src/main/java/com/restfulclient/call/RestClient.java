@@ -8,276 +8,176 @@ package com.restfulclient.call;
 import com.restfulclient.impl.AbstractClient;
 import com.restfulclient.impl.ApiException;
 import com.restfulclient.impl.Authorization;
-import com.restfulclient.impl.MediaType;
+import com.restfulclient.impl.BodyType;
 import com.restfulclient.impl.Method;
+import com.restfulclient.impl.ParameterType;
 import com.restfulclient.impl.RequestBody;
+import com.restfulclient.impl.RequestParameters;
 import com.restfulclient.interfaces.IAuthorization;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.Map;
 import com.restfulclient.interfaces.IAbstractClient;
-
+import com.restfulclient.interfaces.IRequestParameters;
+import java.util.LinkedHashMap;
 
 public class RestClient extends AbstractClient {
 
-    private final String serverURL;
-    private final String requestMethodURL;
-    private byte[] bodyContent = null;
-    private final Method method;
-    private Map<String, Object> queryParameters = null;
-    private Map<String, Object> optionalHeaderParameters = null;
-    private String apiToken = null, user = null, pass = null;
-       
+    private String bodyContent = null;
+    private BodyType bodyType = BodyType.NONE;;
+    private ParameterType parameterType=null;
+    private LinkedHashMap<String, Object> queryParameters = null;
+    private LinkedHashMap<String, Object> multiPartFormData = new LinkedHashMap<String, Object>();
+    private Map<String, Object> headerParameters = null;
     
-    private RestClient(String serverURL, String requestMethodPath, Method method, MediaType requestType, Map<String, Object> optionalHeaderParameters, String bodyContent, String apiToken) {
-        super(requestType);
-        this.serverURL = serverURL;
-        this.requestMethodURL = requestMethodPath;
-        this.bodyContent = bodyContent.getBytes();
-        this.method = method;      
-        this.optionalHeaderParameters = optionalHeaderParameters;
-        this.apiToken = apiToken;
+    private RestClient(String serverURL, String requestMethodPath, Method method, BodyType bodyType, Map<String, Object> headerParameters, String bodyContent) throws Exception {
+        super(serverURL,requestMethodPath,method);
+        this.bodyContent = bodyContent;  
+        this.headerParameters = headerParameters;
+        this.bodyType=bodyType;
     }
     
-     private RestClient(String serverURL, String requestMethodPath, Method method, MediaType requestType, Map<String, Object> optionalHeaderParameters, byte[] bodyContent, String apiToken) {
-        super(requestType);
-        this.serverURL = serverURL;
-        this.requestMethodURL = requestMethodPath;
-        this.bodyContent = bodyContent;
-        this.method = method;      
-        this.optionalHeaderParameters = optionalHeaderParameters;
-        this.apiToken = apiToken;
+    private RestClient(String serverURL, String requestMethodPath, Method method, BodyType bodyType, Map<String, Object> headerParameters, File file) throws  ApiException, Exception {
+        super(serverURL,requestMethodPath,method);       
+        super.addFormMultipartParams(file.getName(), file);        
+        this.bodyType=bodyType;     
+        this.headerParameters = headerParameters;
+        multiPartFormData.put(file.getName(), file);
     }
 
-    private RestClient(String serverURL, String requestMethodPath, Method method, MediaType requestType, Map<String, Object> optionalHeaderParameters, File multiPart, String apiToken) throws  ApiException {
-        super(requestType);
-        this.serverURL = serverURL;
-        this.requestMethodURL = requestMethodPath;
-        try (FileInputStream fis = new FileInputStream(multiPart)) {
-            this.bodyContent = fis.readAllBytes();
-            super.addFormMultipartParams(multiPart.getName(), multiPart);
-        } catch (FileNotFoundException ex) {
-            throw new ApiException(ex);
-        } catch (IOException ex) {
-            throw new ApiException(ex);
-        }
-        this.method = method;       
-        this.optionalHeaderParameters = optionalHeaderParameters;
-        this.apiToken = apiToken;
+    private RestClient(String serverURL, String requestMethodPath, Method method, Map<String, Object> headerParameters) throws Exception {
+        super(serverURL,requestMethodPath,method);    
+        this.headerParameters = headerParameters;
     }
 
-    private RestClient(String serverURL, String requestMethodPath, Method method, Map<String, Object> optionalHeaderParameters, String apiToken) {
-        super(MediaType.JSON_QUERY);
-        this.serverURL = serverURL;
-        this.requestMethodURL = requestMethodPath;
-        this.bodyContent = null;
-        this.method = method;        
-        this.optionalHeaderParameters = optionalHeaderParameters;
-        this.apiToken = apiToken;
+     private RestClient(String serverURL, String requestMethodPath, Method method, Map<String, Object> headerParameters, ParameterType parameterType, LinkedHashMap<String, Object> queryParameters) throws Exception {
+        super(serverURL,requestMethodPath,method);
+        this.parameterType=parameterType;
+        this.queryParameters = queryParameters;
+        this.headerParameters = headerParameters;
     }
 
-    private RestClient(String serverURL, String requestMethodPath, Method method, Map<String, Object> optionalHeaderParameters, String user, String password) {
-        super(MediaType.JSON_QUERY);
-        this.serverURL = serverURL;
-        this.requestMethodURL = requestMethodPath;
-        this.bodyContent = null;
-        this.method = method;       
-        this.optionalHeaderParameters = optionalHeaderParameters;
-        this.user = user;
-        this.pass = password;
+    private RestClient(String serverURL, String requestMethodPath, Method method, BodyType bodyType, Map<String, Object> headerParameters,  ParameterType parameterType,LinkedHashMap<String, Object> queryParameters, String bodyContent) throws Exception {
+        super(serverURL,requestMethodPath,method);
+        this.bodyContent = bodyContent;     
+        this.parameterType=parameterType;
+        this.queryParameters = queryParameters;
+        this.headerParameters = headerParameters;
+        this.bodyType=bodyType;
+    }
+  
+    private RestClient(String serverURL, String requestMethodPath, Method method, BodyType bodyType, Map<String, Object> headerParameters,  ParameterType parameterType, LinkedHashMap<String, Object> queryParameters, File file) throws ApiException, Exception {
+        super(serverURL,requestMethodPath,method);
+        super.addFormMultipartParams(file.getName(), file);       
+        this.queryParameters = queryParameters;
+        this.parameterType=parameterType;
+        this.headerParameters = headerParameters;
+        this.bodyType=bodyType;
     }
 
-    private RestClient(String serverURL, String requestMethodPath, Method method, MediaType requestType, Map<String, Object> optionalHeaderParameters, String bodyContent, String user, String password) {
-        super(requestType);
-        this.serverURL = serverURL;
-        this.requestMethodURL = requestMethodPath;
-        this.bodyContent = bodyContent.getBytes();
-        this.method = method;       
-        this.optionalHeaderParameters = optionalHeaderParameters;
-        this.user = user;
-        this.pass = password;
+    public static IAbstractClient build(String serverURL, String requestMethodPath, Method method, BodyType requestType, Map<String, Object> headerParameters, ParameterType parameterType,LinkedHashMap<String, Object> queryParameters, String bodyContent) throws Exception {
+        return new RestClient(serverURL, requestMethodPath, method, requestType, headerParameters, parameterType,queryParameters, bodyContent );
+    }
+ 
+    public static IAbstractClient build(String serverURL, String requestMethodPath, Method method, Map<String, Object> headerParameters) throws Exception {
+        return new RestClient(serverURL, requestMethodPath, method, headerParameters);
+    }
+
+    public static IAbstractClient build(String serverURL, String requestMethodPath, Method method,  Map<String, Object> headerParameters, ParameterType parameterType, LinkedHashMap<String, Object> queryParameters) throws Exception {
+        return new RestClient(serverURL, requestMethodPath, method, headerParameters, parameterType,queryParameters);
+    }
+
+    public static IAbstractClient build(String serverURL, String requestMethodPath, Method method, BodyType requestType, Map<String, Object> headerParameters, String bodyContent) throws Exception {
+        return new RestClient(serverURL, requestMethodPath, method, requestType, headerParameters, bodyContent);
     }
     
-     private RestClient(String serverURL, String requestMethodPath, Method method, MediaType requestType, Map<String, Object> optionalHeaderParameters, byte[] bodyContent, String user, String password) {
-        super(requestType);
-        this.serverURL = serverURL;
-        this.requestMethodURL = requestMethodPath;
-        this.bodyContent = bodyContent;
-        this.method = method;       
-        this.optionalHeaderParameters = optionalHeaderParameters;
-        this.user = user;
-        this.pass = password;
+    public static IAbstractClient build(String serverURL, String requestMethodPath, Method method, BodyType requestType, Map<String, Object> headerParameters, File file) throws ApiException, Exception {
+        return new RestClient(serverURL, requestMethodPath, method, requestType, headerParameters, file);
     }
 
-    private RestClient(String serverURL, String requestMethodPath, Method method, MediaType requestType, Map<String, Object> optionalHeaderParameters, File multiPart, String user, String password) throws ApiException {
-        super(requestType);
-        this.serverURL = serverURL;
-        this.requestMethodURL = requestMethodPath;
-         try (FileInputStream fis = new FileInputStream(multiPart)) {
-            this.bodyContent = fis.readAllBytes();
-            super.addFormMultipartParams(multiPart.getName(), multiPart);
-        } catch (FileNotFoundException ex) {
-            throw new ApiException(ex);
-        } catch (IOException ex) {
-            throw new ApiException(ex);
-        }
-        this.method = method;        
-        this.optionalHeaderParameters = optionalHeaderParameters;
-        this.user = user;
-        this.pass = password;
-    }
-
-    private RestClient(String serverURL, String requestMethodPath, Method method, MediaType requestType, Map<String, Object> optionalHeaderParameters, Map<String, Object> queryParameters, String apiToken) {
-        super(requestType);
-        this.serverURL = serverURL;
-        this.requestMethodURL = requestMethodPath;
-        this.bodyContent = null;
-        this.method = method;       
-        this.queryParameters = queryParameters;
-        this.optionalHeaderParameters = optionalHeaderParameters;
-        this.apiToken = apiToken;
-    }
-
-    private RestClient(String serverURL, String requestMethodPath, Method method, MediaType requestType, Map<String, Object> optionalHeaderParameters, Map<String, Object> queryParameters, String user, String password) {
-        super(requestType);
-        this.serverURL = serverURL;
-        this.requestMethodURL = requestMethodPath;
-        this.bodyContent = null;
-        this.method = method;      
-        this.queryParameters = queryParameters;
-        this.optionalHeaderParameters = optionalHeaderParameters;
-        this.user = user;
-        this.pass = password;
-    }
-
-    private RestClient(String serverURL, String requestMethodPath, Method method, MediaType requestType, Map<String, Object> optionalHeaderParameters, Map<String, Object> queryParameters, String bodyContent, String user, String password) {
-        super(requestType);
-        this.serverURL = serverURL;
-        this.requestMethodURL = requestMethodPath;
-        this.bodyContent = bodyContent.getBytes();
-        this.method = method;       
-        this.queryParameters = queryParameters;
-        this.optionalHeaderParameters = optionalHeaderParameters;
-        this.user = user;
-        this.pass = password;
-    }
-    
-     private RestClient(String serverURL, String requestMethodPath, Method method, MediaType requestType, Map<String, Object> optionalHeaderParameters, Map<String, Object> queryParameters, byte[] bodyContent, String user, String password) {
-        super(requestType);
-        this.serverURL = serverURL;
-        this.requestMethodURL = requestMethodPath;
-        this.bodyContent = bodyContent;
-        this.method = method;       
-        this.queryParameters = queryParameters;
-        this.optionalHeaderParameters = optionalHeaderParameters;
-        this.user = user;
-        this.pass = password;
+    public static IAbstractClient build(String serverURL, String requestMethodPath, Method method, BodyType requestType, Map<String, Object> headerParameters, ParameterType parameterType,LinkedHashMap<String, Object> queryParameters, File file) throws ApiException, Exception {
+        return new RestClient(serverURL, requestMethodPath, method, requestType, headerParameters, parameterType,queryParameters, file);
     }
    
-    private RestClient(String serverURL, String requestMethodPath, Method method, MediaType requestType, Map<String, Object> optionalHeaderParameters, Map<String, Object> queryParameters, File multiPart, String user, String password) throws ApiException {
-        super(requestType);
-        this.serverURL = serverURL;
-        this.requestMethodURL = requestMethodPath;
-        try (FileInputStream fis = new FileInputStream(multiPart)) {
-            this.bodyContent = fis.readAllBytes();
-            super.addFormMultipartParams(multiPart.getName(), multiPart);
-        } catch (FileNotFoundException ex) {
-             throw new ApiException(ex);
-        } catch (IOException ex) {
-             throw new ApiException(ex);
-        }
-        this.method = method;       
-        this.queryParameters = queryParameters;
-        this.optionalHeaderParameters = optionalHeaderParameters;
-        this.user = user;
-        this.pass = password;
-    }
-
-    public static IAbstractClient build(String serverURL, String requestMethodPath, Method method, Map<String, Object> optionalHeaderParameters, String apiToken) {
-        return new RestClient(serverURL, requestMethodPath, method, optionalHeaderParameters, apiToken);
-    }
-
-    public static IAbstractClient build(String serverURL, String requestMethodPath, Method method, Map<String, Object> optionalHeaderParameters, String user, String password) {
-        return new RestClient(serverURL, requestMethodPath, method, optionalHeaderParameters, user, password);
-    }
-
-    public static IAbstractClient build(String serverURL, String requestMethodPath, Method method, MediaType requestType, Map<String, Object> optionalHeaderParameters, Map<String, Object> queryParameters, String apiToken) {
-        return new RestClient(serverURL, requestMethodPath, method, requestType, optionalHeaderParameters, queryParameters, apiToken);
-    }
-
-    public static IAbstractClient build(String serverURL, String requestMethodPath, Method method, MediaType requestType, Map<String, Object> optionalHeaderParameters, Map<String, Object> queryParameters, String user, String password) {
-        return new RestClient(serverURL, requestMethodPath, method, requestType, optionalHeaderParameters, queryParameters, user, password);
-    }
-
-    public static IAbstractClient build(String serverURL, String requestMethodPath, Method method, MediaType requestType, Map<String, Object> optionalHeaderParameters, String bodyContent, String apiToken) {
-        return new RestClient(serverURL, requestMethodPath, method, requestType, optionalHeaderParameters, bodyContent, apiToken);
-    }
-
-    public static IAbstractClient build(String serverURL, String requestMethodPath, Method method, MediaType requestType, Map<String, Object> optionalHeaderParameters, String bodyContent, String user, String password) {
-        return new RestClient(serverURL, requestMethodPath, method, requestType, optionalHeaderParameters, bodyContent, user, password);
-    }
-
-    public static IAbstractClient build(String serverURL, String requestMethodPath, Method method, MediaType requestType, Map<String, Object> optionalHeaderParameters, byte[] bodyContent, String apiToken) {
-        return new RestClient(serverURL, requestMethodPath, method, requestType, optionalHeaderParameters, bodyContent, apiToken);
-    }
-
-    public static IAbstractClient build(String serverURL, String requestMethodPath, Method method, MediaType requestType, Map<String, Object> optionalHeaderParameters, byte[] bodyContent, String user, String password) {
-        return new RestClient(serverURL, requestMethodPath, method, requestType, optionalHeaderParameters, bodyContent, user, password);
-    }
-    
-    public static IAbstractClient build(String serverURL, String requestMethodPath, Method method, MediaType requestType, Map<String, Object> optionalHeaderParameters, Map<String, Object> queryParameters, String bodyContent, String user, String password) {
-        return new RestClient(serverURL, requestMethodPath, method, requestType, optionalHeaderParameters, queryParameters, bodyContent, user, password);
-    }
-    
-    public static IAbstractClient build(String serverURL, String requestMethodPath, Method method, MediaType requestType, Map<String, Object> optionalHeaderParameters, Map<String, Object> queryParameters, byte[] bodyContent, String user, String password) {
-        return new RestClient(serverURL, requestMethodPath, method, requestType, optionalHeaderParameters, queryParameters, bodyContent, user, password);
-    }
-
-    public static IAbstractClient build(String serverURL, String requestMethodPath, Method method, MediaType requestType, Map<String, Object> optionalHeaderParameters, File multiPart, String apiToken) throws ApiException {
-        return new RestClient(serverURL, requestMethodPath, method, requestType, optionalHeaderParameters, multiPart, apiToken);
-    }
-
-    public static IAbstractClient build(String serverURL, String requestMethodPath, Method method, MediaType requestType, Map<String, Object> optionalHeaderParameters, File multiPart, String user, String password) throws ApiException {
-        return new RestClient(serverURL, requestMethodPath, method, requestType, optionalHeaderParameters, multiPart, user, password);
-    }
-
-    public static IAbstractClient build(String serverURL, String requestMethodPath, Method method, MediaType requestType, Map<String, Object> optionalHeaderParameters, Map<String, Object> queryParameters, File multiPart, String user, String password) throws ApiException {
-        return new RestClient(serverURL, requestMethodPath, method, requestType, optionalHeaderParameters, queryParameters, multiPart, user, password);
-    }
-   
-
     @Override
-    public void addAutentication() {
-        IAuthorization authorization = null;
-        if (apiToken != null && !apiToken.equals("")) {
-            authorization = Authorization.build(apiToken);
+    public IAbstractClient addAutentication(String apiKey) {     
+        if (apiKey != null) {
+            IAuthorization build = Authorization.build(apiKey);
+            this.addHeader(build.getAuthorization(), build.getAuthorizationToken());
         }
-
-        if (user != null && !user.equals("") && pass != null && !pass.equals("")) {
-            authorization = Authorization.build(user, pass);
+       return this;
+    }
+    
+    @Override
+     public IAbstractClient addAutentication(String user,String password) {     
+        if (user != null && password != null) {
+            IAuthorization build = Authorization.build(user,password);
+            this.addHeader(build.getAuthorization(), build.getAuthorizationToken());
         }
-        if (authorization != null) {
-            this.addHeader(authorization.getAuthorization(), authorization.getAuthorizationToken());
-        }
+       return this;
     }
 
     @Override
-    public void prepareCall() {
-        if(optionalHeaderParameters!= null) {
-           optionalHeaderParameters.keySet().forEach(param -> {
-               super.addHeader(param, optionalHeaderParameters.get(param).toString());
-            });
-           optionalHeaderParameters.clear();
+    public void prepareCall() throws ApiException {
+        try {
+            addHeaderParameters();
+            switch(bodyType){
+                case RAW:
+                    addRequestParameter();
+                    super.addRequestBody(bodyContent != null ? RequestBody.build(bodyType,bodyContent.getBytes()) : null);       
+                    break;
+                case URL_FORM_ENCODED:
+                    bodyContent=RestClientConstants.urlencoded(queryParameters, null);
+                    super.addRequestBody(bodyContent != null ? RequestBody.build(bodyType,bodyContent.getBytes()) : null);        
+                    break;
+                case MULTIPART_FORM:
+                    addRequestParameter();
+                    addMultiFormData();
+                    break;
+                case FORM_DATA:
+                    addRequestParameter();
+                    addMultiFormData();
+                    break;
+                case BINARY:
+                    addMultiFormData();                
+                   break;
+                case NONE:
+                    addRequestParameter();
+                    break;
+                default:
+                          
+            }  
+        } catch (Exception ex) { 
+            throw new ApiException(ex);
+        }
+    }
+    
+    private void addRequestParameter() throws ApiException{
+      if (queryParameters != null && !queryParameters.isEmpty()) {
+         IRequestParameters parameter = RequestParameters.build();
+         try {
+            parameter.addParameter(parameterType, queryParameters);
+            super.addRequestParameter(parameter);
+         } catch (Exception ex) {
+           throw new ApiException(ex);
          }
-        if (queryParameters != null) {
-            queryParameters.keySet().forEach(key -> {
-               super.addQueryParameter(key, queryParameters.get(key));
-            });
-            queryParameters.clear();
-        }
-        super.addRequestBody(bodyContent != null ? RequestBody.build(bodyContent) : null);       
-        super.addURLInfo(serverURL, requestMethodURL, method);
-    } 
+     }
+   }
+    
+    private void addMultiFormData(){
+     if(multiPartFormData != null && !multiPartFormData.isEmpty()){
+         multiPartFormData.keySet().forEach(key -> {
+          super.addFormMultipartParams(key,multiPartFormData.get(key));
+         });
+       multiPartFormData.clear();
+     }
+   }
+    
+    private void addHeaderParameters(){
+       if(headerParameters!= null) {
+          headerParameters.keySet().forEach(param -> {
+               super.addHeader(param, headerParameters.get(param).toString());
+          });
+        headerParameters.clear();
+      }
+    }
 }

@@ -37,4 +37,9 @@ public class Authorization implements IAuthorization {
     public String getAuthorizationToken() {
         return encodedToken.toString();
     }
+
+    @Override
+    public void clean() {
+        encodedToken=null;
+    }
 }

@@ -23,12 +23,12 @@ import com.restfulclient.interfaces.IClient;
 public class Client implements IClient {
 
     private HttpURLConnection connection;
-    private final IRequest requestCall;
+    private final IRequest request;
     private IResponse response;
-
+    
     private Client(IRequest request) {
-        this.requestCall = request;
-        allowMethods(Method.PATCH.getName());
+        this.request = request;
+       
     }
 
     public static IClient build(IRequest request) {
@@ -110,27 +110,30 @@ public class Client implements IClient {
 
     private IResponse executeCall() throws ApiException, IOException {
         try {
-            if (requestCall.getHeader() == null) {
+            if (request.getHeader() == null) {
                 throw new ApiException("Error while initializing remote connection No header defined ");
             }
-            URL url = new URL(requestCall.getRequestPath().getPath());
+            URL url = new URL(request.getRequestPath().getPath());
             connection = (HttpURLConnection) url.openConnection();
-            connection.setConnectTimeout(3000);
-            connection.setReadTimeout(15000);
-            requestCall.getHeader().keySet().forEach(param -> {
-                connection.setRequestProperty(param, requestCall.getHeader().get(param).toString());
+            connection.setConnectTimeout(15000);
+            connection.setReadTimeout(45000);
+            request.getHeader().keySet().forEach(param -> {
+                connection.setRequestProperty(param, request.getHeader().get(param).toString());
             });
+            if(request.getMethod() == Method.PATCH){
+               allowMethods(Method.PATCH.getName());
+            }
             connection.setDefaultUseCaches(false);
             connection.setUseCaches(false);
-            connection.setRequestMethod(requestCall.getRequestPath().getMethod().getName());
-            if (requestCall.useBodyRequest()) {
+            connection.setRequestMethod(request.getMethod().getName());
+            if (request.useBodyRequest()) {
                 connection.setDoOutput(true);
                 connection.setDoInput(true);
             } else {
                 connection.setDoOutput(false);
                 connection.setDoInput(true);
             }
-            requestCall.call(this);
+            request.execute(this);
             response = Response.build();
             response.process(this);
             return response;
@@ -202,6 +205,11 @@ public class Client implements IClient {
     @Override
     public Map<String, List<String>> getResponseHeader() throws IOException, ApiException {
         return connection.getHeaderFields();
+    }
+
+    @Override
+    public void clean() {
+       this.request.clean();     
     }
 
 }

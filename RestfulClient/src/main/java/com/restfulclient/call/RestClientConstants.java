@@ -43,12 +43,12 @@ public class RestClientConstants {
         return "form-data; name=\"" + name + "\";filename=\"" + fileName + "\"";
     }
 
-    public static String getFormDataContentn(String name) {
+    public static String getFormDataContent(String name) {
         return "form-data; name=\"" + name + "\"";
     }
 
     public static String getMultiPartContentType(String boundary) {
-        return MULTIPART_CONTENT_TYPE + boundary;
+        return  "multipart/form-data; boundary=" + boundary;
     }
 
     public static String getTextPlainContent(String charset) {

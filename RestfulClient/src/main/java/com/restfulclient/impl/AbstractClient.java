@@ -7,6 +7,7 @@ import java.io.IOException;
 import com.restfulclient.interfaces.IClient;
 import com.restfulclient.interfaces.IAbstractClient;
 import com.restfulclient.interfaces.IRequestBody;
+import com.restfulclient.interfaces.IRequestParameters;
 
 /**
  * Abstract representation of any restful call
@@ -14,45 +15,26 @@ import com.restfulclient.interfaces.IRequestBody;
 public abstract class AbstractClient implements IAbstractClient {
 
     private IRequest request = null;
-    private boolean USE_BODY_ON_REQUEST = false;
-    private MediaType callType=null;
     
-    public AbstractClient(MediaType callType) {
-        this.callType=callType;
-        request = Request.build(RequestPath.build());
-    }
-
-    private void checkRequest() throws ApiException {
-        if (USE_BODY_ON_REQUEST && this.request.useBodyRequest()==false) {
-            try {
-                throw new ApiException("Request is for POST or PUT or PATCH or DELETE but not anybut TYPE_JSON_BODY not found");
-            } catch (ApiException ex) {
-                throw ex;
-            }
-        } else {
-            if (!USE_BODY_ON_REQUEST &&  this.request.useBodyRequest()) {
-                try {
-                    throw new ApiException("Request is NOT POST or PUT but TYPE_JSON_BODY not found");
-                } catch (ApiException ex) {
-                    throw ex;
-                }
-            }
-        }
+    public AbstractClient(final String server, final String service,Method method) throws Exception {
+       request = Request.build(method, RequestPath.build(server, service));
     }
 
     /**
      * Method to implement the restful API call
+     * @throws com.restfulclient.impl.ApiException
      */
-    public abstract void prepareCall();
-    public abstract void addAutentication();      
+    public abstract void prepareCall()throws ApiException;
+    @Override
+    public abstract IAbstractClient addAutentication(String apiKey); 
+    @Override
+    public abstract IAbstractClient addAutentication(String user, String password); 
 
     @Override
     public IResponseResult executeCall() throws IOException, ApiException {
       IClient stream=null;
       IResponse response =null;
-        try {            
-            checkRequest();
-            addAutentication();
+        try {         
             prepareCall();          
             stream = Client.build(request);
             response = stream.execute();
@@ -60,13 +42,14 @@ public abstract class AbstractClient implements IAbstractClient {
         } catch (IOException | ApiException ex) {
             throw ex;
         }finally{
+            stream.clean();
             stream=null;
         }        
     }
 
-    protected void addQueryParameter(String parameter, Object value) {
+    protected void addRequestParameter(IRequestParameters requestParameter) throws Exception {
         if (request.getRequestPath() != null) {
-            request.getRequestPath().addQueryParameter(parameter, value);
+            request.getRequestPath().addRequestParameter(requestParameter);
         }
     }
 
@@ -76,7 +59,7 @@ public abstract class AbstractClient implements IAbstractClient {
         }
     }
     
-     protected void addFormMultipartParams(String name, Object value) {
+    protected void addFormMultipartParams(String name, Object value) {
         if (request != null) {
             request.addFormMultipartParams(name, value);
         }
@@ -84,49 +67,7 @@ public abstract class AbstractClient implements IAbstractClient {
 
     protected void addRequestBody(IRequestBody body) {
         if (request != null) {
-            request.setRequestBody(body);
+            request.addBody(body);
         }
     }
-
-    protected void addURLInfo(String url, String webServiceMethod, Method httpMethod) {
-        if (request.getRequestPath() != null) {              
-            switch (this.callType) {
-                case JSON_QUERY:
-                    request.getRequestPath().addPathForJSONQuery(url, webServiceMethod, httpMethod);
-                    break;
-                case HTTP_QUERY:
-                    request.getRequestPath().addPathForHTTPQuery(url, webServiceMethod, httpMethod);
-                    break;
-                case PLAIN_BODY:
-                    USE_BODY_ON_REQUEST = true;
-                    request.getRequestPath().addPathForRequestForJSONBody(url, webServiceMethod, httpMethod);
-                    break;
-                case JSON_QUERY_AND_BODY:
-                    USE_BODY_ON_REQUEST = true;
-                    request.getRequestPath().addPathForJSONQuery(url, webServiceMethod, httpMethod);
-                    break;
-                case HTTP_QUERY_AND_BODY:
-                    USE_BODY_ON_REQUEST = true;
-                    request.getRequestPath().addPathForHTTPQuery(url, webServiceMethod, httpMethod);
-                    break;
-                case MULTIPART_FORM_JSON_QUERY:
-                    USE_BODY_ON_REQUEST = true;
-                    request.getRequestPath().addPathForJSONQuery(url, webServiceMethod, httpMethod);
-                    break;
-                case MULTIPART_FORM_HTTP_QUERY:
-                    USE_BODY_ON_REQUEST = true;
-                    request.getRequestPath().addPathForHTTPQuery(url, webServiceMethod, httpMethod);
-                    break;
-                case MULTIPART_FORM:
-                    USE_BODY_ON_REQUEST = true;
-                    request.getRequestPath().addPathForHTTPQuery(url, webServiceMethod, httpMethod);
-                    break;
-                case BINARY:
-                    USE_BODY_ON_REQUEST = true;
-                    request.getRequestPath().addPathForRequestForJSONBody(url, webServiceMethod, httpMethod);
-                    break;    
-            }
-        }
-    }
-
 }
