@@ -16,6 +16,7 @@ public interface IRequestParameters {
      public void addParameter(String key , Object value);
      public String getEncodedParameters();
      public void setParamterType(ParameterType type);
+     public ParameterType getParamterType();
      public void clean();
      public void processParameters()  throws ApiException;
 }

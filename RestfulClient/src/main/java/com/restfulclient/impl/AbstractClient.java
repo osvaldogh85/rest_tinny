@@ -20,13 +20,9 @@ public abstract class AbstractClient implements IAbstractClient {
     
     public AbstractClient(final String server, final String service,Method method) throws Exception {
        request = Request.build(method, RequestPath.build(server, service));
+       request.addBody(RequestBody.build(BodyType.NONE));
     }
 
-    /**
-     * Method to implement the restful API call
-     * @throws com.restfulclient.impl.ApiException
-     */
-    public abstract void prepareCall()throws ApiException;
     @Override
     public abstract IAbstractClient addAutentication(String apiKey); 
     @Override
@@ -36,9 +32,27 @@ public abstract class AbstractClient implements IAbstractClient {
     public IResponseResult execute() throws IOException, ApiException {
       IClient stream=null;
       IResponse response =null;
-        try {         
-            prepareCall();  
-            request.getRequestPath().getRequestParameter().processParameters();
+        try {   
+            switch(request.getBody().getBodyType()){
+                case NONE:                   
+                    break;
+                case URL_FORM_ENCODED:
+                    request.getRequestPath().getRequestParameter().processParameters();
+                    String encoded = this.request.getRequestPath().getRequestParameter().getEncodedParameters();
+                    request.getBody().setBodyContent(encoded);
+                    request.getBody().setBody(encoded.getBytes());
+                    break;                    
+                case RAW:
+                    break;
+                case BINARY:
+                    break;
+                case FORM_DATA:
+                    break;
+                case MULTIPART_FORM:
+                    break;
+                default:  
+            } 
+        
             stream = Client.build(request);
             response = stream.execute();
             return response.getIResponseResult();
@@ -58,17 +72,20 @@ public abstract class AbstractClient implements IAbstractClient {
         }
         return this;
     }
-    
-    protected void addFormMultipartParams(String name, Object value) {
+    @Override
+    public IAbstractClient addFormMultipartParams(String name, Object value) {
         if (request != null) {
             request.addFormMultipartParams(name, value);
         }
+        return this;
     }
 
-    protected void addRequestBody(IRequestBody body) {
+    @Override
+    public IAbstractClient addRequestBody(IRequestBody body) {
         if (request != null) {
             request.addBody(body);
         }
+        return this;
     }
 
     @Override
@@ -91,10 +108,6 @@ public abstract class AbstractClient implements IAbstractClient {
            }
        }
        return this;
-    }
-    
-    @Override
-    public IRequestPath getRequestPath(){
-        return this.request.getRequestPath();
-    }
+    }  
+       
 }

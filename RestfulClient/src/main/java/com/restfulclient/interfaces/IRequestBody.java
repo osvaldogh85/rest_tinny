@@ -3,8 +3,11 @@ package com.restfulclient.interfaces;
 import com.restfulclient.impl.BodyType;
 
 public interface IRequestBody {
-   public byte[] getMessage();
    public BodyType getBodyType();
-   public void clean();
    public long getBodyLength();
+   public Object getBodyContent();
+   public void setBodyContent(Object content);
+   public byte[] getBody();
+   public void setBody(byte[] body);
+   public void clean();
 }

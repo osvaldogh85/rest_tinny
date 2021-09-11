@@ -111,7 +111,7 @@ public class Request implements IRequest {
             OutputStream output = client.getRequestStream();
             DataOutputStream wr = new DataOutputStream(output);
             try  {              
-                wr.write(body.getMessage());
+                wr.write(body.getBody());
                 wr.flush();
             } catch (IOException ex) {
                 throw new ApiException(ex);

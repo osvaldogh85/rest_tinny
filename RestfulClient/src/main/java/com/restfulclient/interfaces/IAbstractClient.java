@@ -20,5 +20,6 @@ public interface IAbstractClient {
      public IAbstractClient addHeader(String name, Object value); 
      public IAbstractClient buildRequestParameterAccessor(ParameterType type); 
      public IAbstractClient addNewRequestParameter(String name, Object value)throws Exception;; 
-     public IRequestPath getRequestPath();
+     public IAbstractClient addRequestBody(IRequestBody body);
+     public IAbstractClient addFormMultipartParams(String name, Object value);
 }

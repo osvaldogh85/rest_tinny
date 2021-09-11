@@ -92,7 +92,7 @@ public final class RequestParameters implements IRequestParameters {
     }
 
     @Override
-    public String getEncodedParameters() {
+    public String getEncodedParameters() {        
         if(parametersEncoded!=null)
           return parametersEncoded.toString();
         
@@ -108,6 +108,11 @@ public final class RequestParameters implements IRequestParameters {
     @Override
     public void setParamterType(ParameterType type) {
        this.type=type;
+    }
+
+    @Override
+    public ParameterType getParamterType() {
+        return type;
     }
 
 }
