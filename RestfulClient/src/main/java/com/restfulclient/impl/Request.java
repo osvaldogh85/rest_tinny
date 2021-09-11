@@ -172,9 +172,8 @@ public class Request implements IRequest {
                 case BINARY:
                     OutputStream outputOctet = client.getRequestStream();
                     try  {
-                    for (Map.Entry<String, Object> param : formMultipartParams.entrySet()) {
-                       Files.copy(((File) param.getValue()).toPath(), outputOctet);
-                    }
+                         File file = (File) body.getBodyContent();                     
+                         Files.copy(file.toPath(), outputOctet);                   
                     } catch (IOException ex) {
                        throw ex;
                     } finally {

@@ -8,6 +8,7 @@ import com.restfulclient.interfaces.IClient;
 import com.restfulclient.interfaces.IAbstractClient;
 import com.restfulclient.interfaces.IRequestBody;
 import com.restfulclient.interfaces.IRequestPath;
+import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -20,7 +21,8 @@ public abstract class AbstractClient implements IAbstractClient {
     
     public AbstractClient(final String server, final String service,Method method) throws Exception {
        request = Request.build(method, RequestPath.build(server, service));
-       request.addBody(RequestBody.build(BodyType.NONE));
+       if(method == Method.GET || method == Method.HEAD)
+         request.addBody(RequestBody.build(BodyType.NONE));
     }
 
     @Override
@@ -33,7 +35,7 @@ public abstract class AbstractClient implements IAbstractClient {
       IClient stream=null;
       IResponse response =null;
         try {   
-            switch(request.getBody().getBodyType()){
+              switch(request.getBody().getBodyType()){
                 case NONE:                   
                     break;
                 case URL_FORM_ENCODED:
@@ -45,7 +47,7 @@ public abstract class AbstractClient implements IAbstractClient {
                 case RAW:
                     break;
                 case BINARY:
-                    break;
+                     break;
                 case FORM_DATA:
                     break;
                 case MULTIPART_FORM:

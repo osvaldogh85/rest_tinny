@@ -46,15 +46,15 @@ public class RequestPath implements IRequestPath {
 
     @Override
     public String getPath() {
-        if (parameters != null) {
+        if (parameters != null && parameters.getParamterType() != ParameterType.FOR_URL_ENCODED) {
             path.append(parameters.getEncodedParameters());
         }
         return path.toString();
     }
 
     @Override
-    public String getEncodedParameters() {
-        if (parameters != null) {
+    public String getXFormURLEncodedParameters() {
+        if (parameters != null  && parameters.getParamterType() == ParameterType.FOR_URL_ENCODED) {
            return this.parameters.getEncodedParameters();
         }
         return null;
