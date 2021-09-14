@@ -27,74 +27,18 @@ public class Client implements IClient {
     private IResponse response;
     
     private Client(IRequest request) {
-        this.request = request;
-       
+        this.request = request;       
     }
 
     public static IClient build(IRequest request) {
         var client = new Client(request);
         return client;
     }
-
-    @Override
-    public boolean isOKHTTP() throws IOException {
-        return (connection.getResponseCode() >= HttpURLConnection.HTTP_OK) && (connection.getResponseCode() <= HttpURLConnection.HTTP_PARTIAL);
-    }
-
-    @Override
-    public OutputStream getRequestStream() throws IOException, ApiException {
-        try {
-            return connection.getOutputStream();
-        } catch (IOException e) {
-            throw new ApiException(e);
-        } catch (Exception e) {
-            throw new ApiException(e);
-        }
-    }
-
-    @Override
-    public InputStreamReader getResponseStream() throws IOException, ApiException {
-        InputStreamReader br = null;
-        try {
-            if (connection.getContentEncoding() != null && RestClientConstants.GZIP_ENCODING.equalsIgnoreCase(connection.getContentEncoding())) {
-                br = (new InputStreamReader(new GZIPInputStream(connection.getInputStream())));
-            } else {
-                if (connection.getContentEncoding() != null && RestClientConstants.DEFLATE_ENCODING.equalsIgnoreCase(connection.getContentEncoding())) {
-                    br = (new InputStreamReader(new InflaterInputStream(connection.getInputStream(), new Inflater(true))));
-                } else {
-                    br = (new InputStreamReader((connection.getInputStream())));
-                }
-            }
-        } catch (IOException e) {
-            throw new ApiException(e);
-        } catch (Exception e) {
-            throw new ApiException(e);
-        }
-        return br;
-    }
-
-    @Override
-    public void close() throws IOException {
-        if (connection != null) {
-            try {
-                if (connection.getErrorStream() != null) {
-                    connection.getErrorStream().close();
-                }
-                if (connection.getInputStream() != null) {
-                    connection.getInputStream().close();
-                }
-            } catch (IOException ex) {
-
-            }
-            connection.disconnect();
-            connection = null;
-        }
-    }
-
+   
     @Override
     public IResponse execute() throws IOException, ApiException {
         try {
-            response = executeCall();
+            response = executeRequest();
         } catch (ApiException ex) {
             try {
                 close();
@@ -108,14 +52,13 @@ public class Client implements IClient {
         return response;
     }
 
-    private IResponse executeCall() throws ApiException, IOException {
-        try {
-            
+    private IResponse executeRequest() throws ApiException, IOException {
+        try {            
             if (request.getHeader() == null) {
                 throw new ApiException("Error while initializing remote connection No header defined ");
             }
             
-            URL url = new URL(request.getRequestPath().getPath());
+            URL url = new URL(request.getFullPath());
             connection = (HttpURLConnection) url.openConnection();
             connection.setConnectTimeout(15000);
             connection.setReadTimeout(45000);        
@@ -163,10 +106,9 @@ public class Client implements IClient {
             close();
         }
     }
-
-    @Override
-    public void addRequestProperty(String param, String value) {
-        connection.setRequestProperty(param, value);
+    
+    public void addRequestProperty(String param, String value){
+          connection.setRequestProperty(param, value);
     }
 
     private void allowMethods(String... methods) {
@@ -200,7 +142,7 @@ public class Client implements IClient {
     }
 
     @Override
-    public InputStreamReader getErrorStream() throws IOException, ApiException {
+    public InputStreamReader getResponseErrorStream() throws IOException, ApiException {
         InputStreamReader br = null;
         try {
             br = (new InputStreamReader((connection.getErrorStream())));
@@ -219,10 +161,68 @@ public class Client implements IClient {
     public Map<String, List<String>> getResponseHeader() throws IOException, ApiException {
         return connection.getHeaderFields();
     }
+     @Override
+    public boolean isOKHTTP() throws IOException {
+        return (connection.getResponseCode() >= HttpURLConnection.HTTP_OK) && (connection.getResponseCode() <= HttpURLConnection.HTTP_PARTIAL);
+    }
+
+    @Override
+    public OutputStream getRequestStream() throws IOException, ApiException {
+        try {
+            return connection.getOutputStream();
+        } catch (IOException e) {
+            throw new ApiException(e);
+        } catch (Exception e) {
+            throw new ApiException(e);
+        }
+    }
+
+    @Override
+    public InputStreamReader getResponseStream() throws IOException, ApiException {
+        InputStreamReader br = null;
+        try {
+            if (connection.getContentEncoding() != null && RestClientConstants.GZIP_ENCODING.equalsIgnoreCase(connection.getContentEncoding())) {
+                br = (new InputStreamReader(new GZIPInputStream(connection.getInputStream())));
+            } else {
+                if (connection.getContentEncoding() != null && RestClientConstants.DEFLATE_ENCODING.equalsIgnoreCase(connection.getContentEncoding())) {
+                    br = (new InputStreamReader(new InflaterInputStream(connection.getInputStream(), new Inflater(true))));
+                } else {
+                    br = (new InputStreamReader((connection.getInputStream())));
+                }
+            }
+        } catch (IOException e) {
+            throw new ApiException(e);
+        } catch (Exception e) {
+            throw new ApiException(e);
+        }
+        return br;
+    }
+    
+    
+
+    @Override
+    public void close() throws IOException {
+        if (connection != null) {
+            try {
+                if (connection.getErrorStream() != null) {
+                    connection.getErrorStream().close();
+                }
+                if (connection.getInputStream() != null) {
+                    connection.getInputStream().close();
+                }
+            } catch (IOException ex) {
+
+            }
+            connection.disconnect();
+            connection = null;
+        }
+    }
+
 
     @Override
     public void clean() {
        this.request.clean();     
     }
+    
 
 }

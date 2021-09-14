@@ -7,10 +7,6 @@ import java.io.IOException;
 import com.restfulclient.interfaces.IClient;
 import com.restfulclient.interfaces.IAbstractClient;
 import com.restfulclient.interfaces.IRequestBody;
-import com.restfulclient.interfaces.IRequestPath;
-import java.io.File;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Abstract representation of any restful call
@@ -20,9 +16,7 @@ public abstract class AbstractClient implements IAbstractClient {
     private IRequest request = null;
     
     public AbstractClient(final String server, final String service,Method method) throws Exception {
-       request = Request.build(method, RequestPath.build(server, service));
-       if(method == Method.GET || method == Method.HEAD)
-         request.addBody(RequestBody.build(BodyType.NONE));
+       request = Request.build(method, RequestPath.build(server, service));     
     }
 
     @Override
@@ -33,14 +27,14 @@ public abstract class AbstractClient implements IAbstractClient {
     @Override
     public IResponseResult execute() throws IOException, ApiException {
       IClient stream=null;
-      IResponse response =null;
+      IResponse response;
         try {   
+              request.buildPathForRequest();
               switch(request.getBody().getBodyType()){
-                case NONE:                   
+                case NONE:                           
                     break;
-                case URL_FORM_ENCODED:
-                    request.getRequestPath().getRequestParameter().processParameters();
-                    String encoded = this.request.getRequestPath().getRequestParameter().getEncodedParameters();
+                case URL_XFORM_ENCODED:
+                    String encoded =  request.buildXFormURLEncodedParameters();
                     request.getBody().setBodyContent(encoded);
                     request.getBody().setBody(encoded.getBytes());
                     break;                    
@@ -91,25 +85,65 @@ public abstract class AbstractClient implements IAbstractClient {
     }
 
     @Override
-    public IAbstractClient buildRequestParameterAccessor(ParameterType type) {
-          if (request.getRequestPath() != null) {
-            try {
-                request.getRequestPath().addRequestParameter(RequestParameters.build(type));
-            } catch (Exception ex) {
-                Logger.getLogger(AbstractClient.class.getName()).log(Level.SEVERE, null, ex);
+    public IAbstractClient addNewRequestQueryParameter(String name, Object value)throws Exception {
+       if(request != null) { 
+          if(request.existsParameterType() == false){
+              request.addRequestParameterInstance(RequestParameters.build(ParameterType.QUERY_PARAMS));
+              request.addNewRequestParameter(name, value);
+          }else{
+            if(request.compareParameterType(ParameterType.QUERY_PARAMS)){
+               request.addNewRequestParameter(name, value);
+            } 
+            else{
+                throw new ApiException("Ilegal access exception you called before a parameter type of : " + request.getCurrentParameterType().name());
             }
-        }
-       return this;
-    }
-
-    @Override
-    public IAbstractClient addNewRequestParameter(String name, Object value)throws Exception {
-       if (request.getRequestPath() != null) {
-           if(request.getRequestPath().getRequestParameter() != null){
-              request.getRequestPath().getRequestParameter().addParameter(name, value);
-           }
+          }                      
        }
        return this;
-    }  
-       
+    } 
+    
+    @Override
+    public IAbstractClient addNewRequestPathParameter(String name, Object value)throws Exception {
+      if(request != null) { 
+          if(request.existsParameterType() == false){
+              request.addRequestParameterInstance(RequestParameters.build(ParameterType.PATH_VARIABLES));
+              request.addNewRequestParameter(name, value);
+          }else{
+            if(request.compareParameterType(ParameterType.PATH_VARIABLES)){
+               request.addNewRequestParameter(name, value);
+            } 
+            else{
+                throw new ApiException("Ilegal access exception you called before a parameter type of : " + request.getCurrentParameterType().name());
+            }
+          }                      
+       }
+       return this;
+    } 
+    
+     @Override
+    public IAbstractClient addNewRequestXFormURLEncodeParameter(String name, Object value)throws Exception {
+      if(request != null) { 
+          if(request.existsParameterType() == false){
+              request.addRequestParameterInstance(RequestParameters.build(ParameterType.FOR_URL_ENCODED));
+              request.addNewRequestParameter(name, value);
+          }else{
+            if(request.compareParameterType(ParameterType.FOR_URL_ENCODED)){
+               request.addNewRequestParameter(name, value);
+            } 
+            else{
+                throw new ApiException("Ilegal access exception you called before a parameter type of : " + request.getCurrentParameterType().name());
+            }
+          }                      
+       }
+       return this;
+    } 
+    
+     @Override
+    public IAbstractClient addNewPathParameter(String name, Object value)throws Exception {
+       if (request != null) {          
+              request.addNewPathParameter(name, value);
+       }
+       return this;
+    } 
+          
 }

@@ -22,6 +22,10 @@ public class RequestBody implements IRequestBody {
     public static IRequestBody build(final BodyType bodyType) {
         return new RequestBody(bodyType, null, null);
     }
+    
+     public static IRequestBody buildDefault() {
+        return new RequestBody(BodyType.NONE, null, null);
+    }
 
     public static IRequestBody build(final BodyType bodyType,Object content,final byte[] body) {
         return new RequestBody(bodyType, content , body);

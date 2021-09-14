@@ -20,7 +20,7 @@ public final class RequestParameters implements IRequestParameters {
     private ParameterType type = null;
     
     private RequestParameters(ParameterType type) {      
-         this.setParamterType(type);
+         this.type = type;
     }
         
     public static IRequestParameters build(ParameterType type) {
@@ -28,7 +28,7 @@ public final class RequestParameters implements IRequestParameters {
     }
   
     @Override
-    public void processParameters() throws ApiException {       
+    public void buildParameters() throws ApiException {       
         switch (type) {
             case PATH_VARIABLES:
                 if (parameters.isEmpty()) {
@@ -44,8 +44,7 @@ public final class RequestParameters implements IRequestParameters {
                     parametersEncoded.append("/").append(parameters.get(key).toString());
                     //1 loop https://server_url/methodName
                     //2 loop https://server_url/methodName/000-00-000003-1
-                });
-                parameters.clear();
+                });              
                 break;
             case QUERY_PARAMS:
                 if (parameters.isEmpty()) {
@@ -72,18 +71,17 @@ public final class RequestParameters implements IRequestParameters {
                         parametersEncoded.append(key.trim()).append("=").append(parameters.get(key).toString().trim());
                     }
                     count++;
-                }
-                parameters.clear();
+                }              
                 break;
             case FOR_URL_ENCODED:
                  if (parameters.isEmpty()) {
                        throw new ApiException("Error while creating path there is no parameters to json request path");
                 }
                 parametersEncoded = new StringBuilder();
-                parametersEncoded.append(RestClientConstants.urlencoded(parameters, null));
-                parameters.clear();
+                parametersEncoded.append(RestClientConstants.urlencoded(parameters, null));             
                 break;
         }
+     
     }
 
     @Override
@@ -92,27 +90,21 @@ public final class RequestParameters implements IRequestParameters {
     }
 
     @Override
-    public String getEncodedParameters() {        
-        if(parametersEncoded!=null)
-          return parametersEncoded.toString();
-        
-        return null;
-    }
-
-    @Override
     public void clean() {
+       this.parameters.clear();
        this.parameters=null;
        this.parametersEncoded=null;
+       this.type=null;
     }
-
-    @Override
-    public void setParamterType(ParameterType type) {
-       this.type=type;
-    }
-
+   
     @Override
     public ParameterType getParamterType() {
         return type;
+    }
+
+    @Override
+    public StringBuilder getEncodedParameters() {
+          return parametersEncoded;
     }
 
 }

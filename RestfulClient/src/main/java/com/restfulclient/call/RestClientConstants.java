@@ -5,6 +5,7 @@
  */
 package com.restfulclient.call;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.LinkedHashMap;
@@ -85,5 +86,7 @@ public class RestClientConstants {
         }
         return encode.toString();
     }
+    
+   
 
 }

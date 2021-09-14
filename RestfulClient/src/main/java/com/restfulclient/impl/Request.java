@@ -16,6 +16,7 @@ import java.net.URLConnection;
 import java.nio.file.Files;
 import com.restfulclient.interfaces.IClient;
 import com.restfulclient.interfaces.IRequestBody;
+import com.restfulclient.interfaces.IRequestParameters;
 
 public class Request implements IRequest {
 
@@ -29,6 +30,8 @@ public class Request implements IRequest {
         this.path = requestPath;
         this.headerImpl = new CPHeaderImpl();
         this.method=method;
+        if(method == Method.GET || method == Method.HEAD)
+            this.addBody(RequestBody.build(BodyType.NONE));
     }
 
     public static IRequest build(Method method,IRequestPath requestPath) throws Exception {
@@ -63,17 +66,59 @@ public class Request implements IRequest {
         }else
             formMultipartParams.put(name, value);
     }
-
+   
+    
     @Override
-    public IRequestPath getRequestPath() {
-        return path;
+    public String buildXFormURLEncodedParameters() throws ApiException {
+        return path.buildXFormURLEncodedParameters();
     }
-  
+    
+    @Override
+    public String getFullPath(){
+      return path.getPath();
+    }
+    
+    @Override
+    public void buildPathForRequest() throws ApiException{
+         path.buildPath();
+    }
+    
+    @Override
+    public void addRequestParameterInstance(IRequestParameters parameters) {
+        this.path.addRequestParameter(parameters);
+    }
+    
+    @Override
+    public void addNewRequestParameter(String name, Object value) {       
+        this.path.addNewRequestParameter(name,value);
+     
+    }
+    
+    @Override
+    public void addNewPathParameter(String name, Object value){
+       this.path.addNewPathParameter(name,value);
+    }
+    
+    @Override
+    public boolean existsParameterType(){
+       return this.path.getParameterType() != null;
+    }
+    
+    @Override
+    public ParameterType getCurrentParameterType(){
+       return existsParameterType() ? this.path.getParameterType() : null;
+    }
+    
+    @Override
+    public boolean compareParameterType(ParameterType type){
+       return this.path.getParameterType() == type;
+    }
+    
     @Override
      public void execute(IClient client) throws ApiException {
         if (useBodyRequest()) {
             try {
-                writeBodyRequest(client);
+                postRequest(client);
             } catch (Exception ex) {
                 throw new ApiException(0, ex.getMessage(), null, "");
             }
@@ -81,24 +126,16 @@ public class Request implements IRequest {
     }
 
     @Override
-    public void addBody(IRequestBody body) {
+    public final void addBody(IRequestBody body) {
        this.body=body;
     }
-
     
     @Override
     public boolean useBodyRequest() {
-       boolean useBodyRequest = false;
-       if(body != null){
-           if(BodyType.NONE != body.getBodyType()){              
-               useBodyRequest= true;           
-           }
-       }
-       return useBodyRequest;
+       return body != null ? BodyType.NONE != body.getBodyType() : false;             
     }
 
-
-    public String guessContentTypeFromFile(File file) {
+    private String guessContentTypeFromFile(File file) {
         String contentType = URLConnection.guessContentTypeFromName(file.getName());
         if (contentType == null) {
             return RestClientConstants.OCTECT_STREAM;
@@ -121,13 +158,13 @@ public class Request implements IRequest {
                 output.close();
             }
     }
-    private void writeBodyRequest(IClient client) throws ApiException, IOException, Exception {       
+    private void postRequest(IClient client) throws ApiException, IOException, Exception {       
             final String LINE_FEED = "\r\n";
             switch(body.getBodyType()){
                 case RAW:
                     writeRawData(client);
                     break;
-                case URL_FORM_ENCODED:  
+                case URL_XFORM_ENCODED:  
                     writeRawData(client); 
                     break;
                 case MULTIPART_FORM:                   
@@ -146,7 +183,7 @@ public class Request implements IRequest {
                      } catch (IOException ex) {
                        throw ex;
                      } finally {
-                        finish(writer, boundary, LINE_FEED);
+                        finishForm(writer, boundary, LINE_FEED);
                         formMultipartParams.clear();                       
                         output.close();
                      }
@@ -164,7 +201,7 @@ public class Request implements IRequest {
                      } catch (Exception ex) {
                        throw ex;
                      } finally {
-                        finish(writerForm, boundaryForm, LINE_FEED);
+                        finishForm(writerForm, boundaryForm, LINE_FEED);
                         formMultipartParams.clear();                       
                         outputForm.close();
                      }
@@ -177,8 +214,7 @@ public class Request implements IRequest {
                     } catch (IOException ex) {
                        throw ex;
                     } finally {
-                       outputOctet.close();
-                       formMultipartParams.clear();
+                       outputOctet.close();                      
                     }
                 break;
 
@@ -187,7 +223,7 @@ public class Request implements IRequest {
             }         
     }
     
-    private void finish(PrintWriter writer, String boundary, final String LINE_FEED)
+    private void finishForm(PrintWriter writer, String boundary, final String LINE_FEED)
     {
          writer.flush();
          writer.append(boundary).append(LINE_FEED);
@@ -200,7 +236,7 @@ public class Request implements IRequest {
         String fileName = file.getName();
         writer.append(boundary).append(LINE_FEED);
         addBodyHeaderFields(writer, LINE_FEED, RestClientConstants.API_CONTENT_DISPOSITION, RestClientConstants.getFormFileDataContent("file", fileName));
-        addBodyHeaderFields(writer, LINE_FEED, RestClientConstants.API_CONTENT_TYPE, URLConnection.guessContentTypeFromName(fileName));
+        addBodyHeaderFields(writer, LINE_FEED, RestClientConstants.API_CONTENT_TYPE, guessContentTypeFromFile(file));
         addBodyHeaderFields(writer, LINE_FEED, RestClientConstants.API_CONTENT_TRANSFER_ENCODING, RestClientConstants.BINARY);
         writer.append(LINE_FEED);
         writer.flush();

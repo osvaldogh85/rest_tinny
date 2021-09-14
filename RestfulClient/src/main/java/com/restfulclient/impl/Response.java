@@ -31,7 +31,7 @@ public class Response implements IResponse {
     public void process(IClient client) throws IOException, ApiException {    
         responseCode = client.getResponseCode();         
         try {              
-            content = readResponse(client.isOKHTTP() ? client.getResponseStream() : client.getErrorStream());               
+            content = readResponse(client.isOKHTTP() ? client.getResponseStream() : client.getResponseErrorStream());               
         } catch (IOException | ApiException e) {
             throw new ApiException(client.getResponseCode(), client.getResponseMessage(),client.getResponseHeader(),content.toString());
         } finally {

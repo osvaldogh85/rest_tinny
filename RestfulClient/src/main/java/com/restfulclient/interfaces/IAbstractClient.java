@@ -6,7 +6,6 @@
 package com.restfulclient.interfaces;
 
 import com.restfulclient.impl.ApiException;
-import com.restfulclient.impl.ParameterType;
 import java.io.IOException;
 
 /**
@@ -18,8 +17,10 @@ public interface IAbstractClient {
      public IAbstractClient addAutentication(String apiKey); 
      public IAbstractClient addAutentication(String user, String password); 
      public IAbstractClient addHeader(String name, Object value); 
-     public IAbstractClient buildRequestParameterAccessor(ParameterType type); 
-     public IAbstractClient addNewRequestParameter(String name, Object value)throws Exception;; 
+     public IAbstractClient addNewRequestQueryParameter(String name, Object value)throws Exception;
+     public IAbstractClient addNewRequestPathParameter(String name, Object value)throws Exception;
      public IAbstractClient addRequestBody(IRequestBody body);
      public IAbstractClient addFormMultipartParams(String name, Object value);
+     public IAbstractClient addNewPathParameter(String name, Object value)throws Exception;
+     public IAbstractClient addNewRequestXFormURLEncodeParameter(String name, Object value)throws Exception;
 }

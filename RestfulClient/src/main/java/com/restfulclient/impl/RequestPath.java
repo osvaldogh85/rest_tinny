@@ -1,16 +1,30 @@
 package com.restfulclient.impl;
 
+
 import com.restfulclient.interfaces.IRequestParameters;
 import com.restfulclient.interfaces.IRequestPath;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.LinkedHashMap;
 
 public class RequestPath implements IRequestPath {
 
     private StringBuilder path = null;
-    private IRequestParameters parameters = null;
+    private String serverBasePath = null, methodBasePath = null;
+    private IRequestParameters requestParameters = null;
+    private LinkedHashMap<String, Object> optionalPathParameters = null;
 
     private RequestPath(final String url, final String service) throws Exception {
         try {
-            create(url, service);
+            this.serverBasePath = url;
+            this.methodBasePath = service;
+            if (serverBasePath == null) {
+                throw new Exception("Error while creating path there is no server url defined to request");
+            }
+
+            if (methodBasePath == null) {
+                throw new Exception("Error while creating path there is no service endpoint defined to request");
+            }         
         } catch (Exception ex) {
             throw ex;
         }
@@ -20,62 +34,118 @@ public class RequestPath implements IRequestPath {
         return new RequestPath(url, service);
     }
 
-    private void create(final String url, final String service) throws Exception {
-        if (url == null) {
-            throw new Exception("Error while creating path there is no server url defined to request");
-        }
-        if (service == null) {
-            throw new Exception("Error while creating path there is no service endpoint defined to request");
-        }
-
+    @Override
+    public void buildPath() throws ApiException {
         StringBuilder serviceToCall = new StringBuilder();
-
-        if (service.charAt(0) == '/') {
-            serviceToCall.append(service.substring(1, service.length()));
+        if (methodBasePath.charAt(0) == '/') {
+            serviceToCall.append(methodBasePath.substring(1, methodBasePath.length()));
         } else {
-            serviceToCall.append(service);
+            serviceToCall.append(methodBasePath);
+        }
+
+        /**
+         * Means service method is on format with path parameters
+         * /interviews/{interview_id}/call/actions/{call_id}/execute
+         *
+         * The key of the map must be the name of the parameter defined on the
+         * path key value interview_id 123 call_id ABC
+         *
+         * You must add parameters depends on path definition in this example
+         * you have to call 2 times the add parameter method because you have
+         * defined 2 path parameters into the path
+         */
+        if (optionalPathParameters != null && !optionalPathParameters.isEmpty()) {
+            serviceToCall = new StringBuilder();
+            for (String key : optionalPathParameters.keySet()) {
+                methodBasePath = methodBasePath.replaceAll("\\{" + key + "\\}", escapeString(optionalPathParameters.get(key).toString()));
+            }
+            if (methodBasePath.charAt(0) == '/') {
+                serviceToCall.append(methodBasePath.substring(1, methodBasePath.length()));
+            } else {
+                serviceToCall.append(methodBasePath);
+            }
         }
 
         path = new StringBuilder();
-        if (!url.substring(url.length() - 1).equals("/")) {
-            path.append(url).append("/").append(serviceToCall.toString());
+        if (!serverBasePath.substring(serverBasePath.length() - 1).equals("/")) {
+            path.append(serverBasePath).append("/").append(serviceToCall.toString());
         } else {
-            path.append(url).append(serviceToCall.toString());
+            path.append(serverBasePath).append(serviceToCall.toString());
+        }
+
+        if (requestParameters != null && requestParameters.getParamterType() != ParameterType.FOR_URL_ENCODED) {
+            requestParameters.buildParameters();
+            path.append(requestParameters.getEncodedParameters().toString());
         }
     }
 
     @Override
     public String getPath() {
-        if (parameters != null && parameters.getParamterType() != ParameterType.FOR_URL_ENCODED) {
-            path.append(parameters.getEncodedParameters());
-        }
         return path.toString();
     }
 
     @Override
-    public String getXFormURLEncodedParameters() {
-        if (parameters != null  && parameters.getParamterType() == ParameterType.FOR_URL_ENCODED) {
-           return this.parameters.getEncodedParameters();
+    public String buildXFormURLEncodedParameters() throws ApiException {
+        if (requestParameters != null) {
+            requestParameters.buildParameters();
+            return requestParameters.getEncodedParameters().toString();
         }
         return null;
     }
 
     @Override
-    public void addRequestParameter(IRequestParameters parameters)  {
-        this.parameters = parameters;
+    public void addRequestParameter(IRequestParameters parameters) {
+        this.requestParameters = parameters;
     }
 
     @Override
-    public void clean() {  
-        if(parameters!=null)
-         parameters.clean();
-        
-        parameters = null;
+    public void clean() {
+        if (requestParameters != null) {
+            requestParameters.clean();
+        }
+        if (optionalPathParameters != null) {
+            optionalPathParameters.clear();
+        }
+        optionalPathParameters=null;
+        requestParameters = null;
         path = null;
     }
 
     @Override
-    public IRequestParameters getRequestParameter() {
-        return parameters;
+    public void addNewRequestParameter(String name, Object value) {
+        if (requestParameters != null) {
+            requestParameters.addParameter(name, value);
+        }
+    }
+
+    @Override
+    public ParameterType getParameterType() {
+        if (requestParameters != null) {
+            return requestParameters.getParamterType();
+        }
+        return null;
+    }
+
+    @Override
+    public void addNewPathParameter(String name, Object value) {
+        if (optionalPathParameters == null) {
+            optionalPathParameters = new LinkedHashMap<String, Object>();
+        }
+
+        optionalPathParameters.put(name, value);
+    }
+
+    /**
+     * Escape the given string to be used as URL query value.
+     *
+     * @param str String to be escaped
+     * @return Escaped string
+     */
+    private String escapeString(String str) {
+        try {
+            return URLEncoder.encode(str, "utf8").replaceAll("\\+", "%20");
+        } catch (UnsupportedEncodingException e) {
+            return str;
+        }
     }
 }

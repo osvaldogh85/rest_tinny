@@ -9,12 +9,9 @@ import com.restfulclient.impl.AbstractClient;
 import com.restfulclient.impl.Authorization;
 import com.restfulclient.impl.Method;
 import com.restfulclient.impl.ParameterType;
-import com.restfulclient.impl.RequestParameters;
 import com.restfulclient.interfaces.IAuthorization;
 import com.restfulclient.interfaces.IAbstractClient;
 import com.restfulclient.interfaces.IRequestBody;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class RestClient extends AbstractClient {
     
@@ -62,17 +59,23 @@ public class RestClient extends AbstractClient {
         return this;
     }
 
+   @Override
+    public RestClient addNewRequestQueryParameter(String name, Object value)throws Exception {
+      super.addNewRequestQueryParameter(name, value);
+      return this;
+    } 
+    
     @Override
-    public RestClient buildRequestParameterAccessor(ParameterType type) {
-       super.buildRequestParameterAccessor(type);
-       return this;
+    public RestClient addNewRequestPathParameter(String name, Object value)throws Exception {
+      super.addNewRequestPathParameter(name, value);
+      return this;
+    } 
+    
+    @Override
+    public RestClient addNewPathParameter(String name, Object value)throws Exception {
+      super.addNewPathParameter(name, value);
+      return this;
     }
-
-    @Override
-    public RestClient addNewRequestParameter(String name, Object value)throws Exception {
-      super.addNewRequestParameter(name, value);
-       return this;
-    }  
      
 } 
    

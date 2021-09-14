@@ -10,7 +10,7 @@ package com.restfulclient.impl;
  * @author odge
  */
 public enum BodyType {
-  FORM_DATA(1), URL_FORM_ENCODED(2), NONE(3),RAW(4),BINARY(5),MULTIPART_FORM(6);
+  FORM_DATA(1), URL_XFORM_ENCODED(2), NONE(3),RAW(4),BINARY(5),MULTIPART_FORM(6);
   
    private final int code;
 
